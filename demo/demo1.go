@@ -15,4 +15,6 @@ type myArg struct {
 
 func main() {
     fmt.Println("demo1")
+    m := myArg{}
+    m.Parse()
 }

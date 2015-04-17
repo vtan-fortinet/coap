@@ -24,12 +24,19 @@ type COAP struct {
 }
 
 
+func (c *COAP)init() {
+    if c.items != nil { return }
+    //panic("init")
+    c.items = make([]oaItem, 0, 10)
+}
+
+
 func (c *COAP)Parse() { c.ParseA(os.Args[1:]) }
 func (c *COAP)ParseA(args []string) {
-
+    c.init()
 }
 
 
 func (c *COAP)Help(err_msg string) {
-
+    c.init()
 }
