@@ -5,7 +5,7 @@ import (
 )
 
 
-type oAI struct {       // option, argument item
+type oaItem struct {    // option, argument item
     short   string
     long    string
     must    bool
@@ -13,14 +13,14 @@ type oAI struct {       // option, argument item
 }
 
 
-type gRP struct {       // group
+type GRP struct {       // group
     sel     string
     val     string
 }
 
 
 type COAP struct {
-    items   []oAI
+    items   []oaItem
 }
 
 
