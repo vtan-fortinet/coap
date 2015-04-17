@@ -5,7 +5,7 @@ Command line Option and Argument Parser
 
 type Grp struct {
     sel string  // first must be string
-    value int   // value is whatever can conver from []byte
+    val int     // value is whatever can conver from []byte
 }
 
 type Arg struct {
@@ -48,22 +48,22 @@ type Arg struct {
     // if entry os string, result will combine with option and value
     // if entry is Grp, will fill first two fields
 
-    // help will have multi line, follow same order
-    C1 string  `-b|-e --begin|--end
-                begin the service
+    // --- start a group, default select will set in instance
+    // default arg can set in instance or here
+    G1 string  `---GRP "filename"|-b
+                Help for this group
+                -b --begin
+                help for begin: begin the service
+                -e --end
                 end the service`
 
-    // group, can select one of them, but no more then one
-    // default has two part, default option and value
-    C2 string  `-c|-d --compress|--decompress '-d'|"filename"
+    // use Grp struct, must has sel and val, sl must be string,
+    // val can be anything convatable from string
+    G2 *Grp    `---FILENAME
+                !Compress/uncompress file
+                -c --compress
                 compress file 
-                decompress file`
-
-    // group, can select one of them, but no more then one
-    // no default option, but has default value,
-    // means must has one of these options, but followed value can omit
-    C3 *Grp    `-c|-d --compress|--decompress ''|"filename"
-                compress file 
+                -d --decompress
                 decompress file`
 }
 ```
