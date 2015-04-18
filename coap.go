@@ -12,6 +12,20 @@ type oaItem struct {    // option, argument item
     long    string
     must    bool
     help    string
+    val     reflect.Value
+    rsf     reflect.StructField
+}
+
+
+func (oa *oaItem)parse(args []string) (cnt int) {
+    // parse option/argument, return how many args used by this item
+    return
+}
+
+
+func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
+    oa.rsf = rsf
+    oa.val = val
 }
 
 
@@ -81,10 +95,10 @@ func verifySP(i interface{}) {  // Struct Pointer
 }
 
 
-func oneField(sf *reflect.StructField) {
-    fmt.Println("name =", sf.Name)
-    fmt.Println("tag =", sf.Tag)
-}
+//func oneField(sf *reflect.StructField) {
+//    fmt.Println("name =", sf.Name)
+//    fmt.Println("tag =", sf.Tag)
+//}
 
 func initial(i interface{}) {
     verifySP(i)
@@ -93,11 +107,13 @@ func initial(i interface{}) {
     st := ii.Type()
     fmt.Println("st =", st)
     for idx := 0; idx < st.NumField(); idx++ {
-        f := st.Field(idx)
-        oneField(&f)
+        fs := st.Field(idx)
+        //oneField(&f)
         fv := ii.Field(idx)
         fmt.Println("fv =", fv, reflect.TypeOf(fv))
         fv.SetString("MyName")
+        it := &oaItem{}
+        it.init(fs, fv)
     }
 }
 
