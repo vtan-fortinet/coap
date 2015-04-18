@@ -1,6 +1,7 @@
 package main
 
 import (
+    "os"
     "fmt"
     "coap"
 )
@@ -16,5 +17,8 @@ type myArg struct {
 func main() {
     fmt.Println("demo1")
     m := myArg{}
-    m.Parse()
+    //m.Parse()
+    m.Help()
+    coap.Parse(m)
+    os.Exit(1)
 }
