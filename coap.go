@@ -38,6 +38,11 @@ func (c *COAP)init() {
     fmt.Println(st.NumField())
 }
 
+func I(i interface{}) {
+    p := reflect.TypeOf(i)
+    q := reflect.Indirect(reflect.ValueOf(i))
+    fmt.Println(p, q)
+}
 
 func (c *COAP)Parse() { c.ParseArgs(os.Args[1:]) }
 func (c *COAP)ParseArgs(args []string) {
