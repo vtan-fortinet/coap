@@ -9,7 +9,7 @@ import (
 
 type myArg struct {
     //coap.COAP
-    name string     `-n --name
+    Uname string    `-n --name
                     what is your name`
 }
 
@@ -21,5 +21,6 @@ func main() {
     //m.Help()
     coap.Help(&m)
     //coap.Parse(&m)
+    fmt.Println("uname =", m.Uname)
     os.Exit(1)
 }

@@ -81,13 +81,23 @@ func verifySP(i interface{}) {  // Struct Pointer
 }
 
 
+func oneField(sf *reflect.StructField) {
+    fmt.Println("name =", sf.Name)
+    fmt.Println("tag =", sf.Tag)
+}
+
 func initial(i interface{}) {
     verifySP(i)
     ii := reflect.Indirect(reflect.ValueOf(i))
-    st := reflect.TypeOf(ii)
+    fmt.Println("ii =", ii)
+    st := ii.Type()
+    fmt.Println("st =", st)
     for idx := 0; idx < st.NumField(); idx++ {
         f := st.Field(idx)
-        fmt.Println("f =", f) //, reflect.TypeOf(f))
+        oneField(&f)
+        fv := ii.Field(idx)
+        fmt.Println("fv =", fv, reflect.TypeOf(fv))
+        fv.SetString("MyName")
     }
 }
 
