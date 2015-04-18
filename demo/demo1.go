@@ -8,7 +8,7 @@ import (
 
 
 type myArg struct {
-    coap.COAP
+    //coap.COAP
     name string     `-n --name
                     what is your name`
 }
@@ -18,7 +18,8 @@ func main() {
     fmt.Println("demo1")
     m := myArg{}
     //m.Parse()
-    m.Help()
-    coap.Parse(m)
+    //m.Help()
+    coap.Help(&m)
+    //coap.Parse(&m)
     os.Exit(1)
 }

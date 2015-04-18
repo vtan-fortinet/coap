@@ -26,6 +26,7 @@ type COAP struct {
 }
 
 
+/*
 func (c *COAP)init() {
     if c.items != nil { return }
     //panic("init")
@@ -38,12 +39,6 @@ func (c *COAP)init() {
     fmt.Println(st.NumField())
 }
 
-func I(i interface{}) {
-    p := reflect.TypeOf(i)
-    q := reflect.Indirect(reflect.ValueOf(i))
-    fmt.Println(p, q)
-}
-
 func (c *COAP)Parse() { c.ParseArgs(os.Args[1:]) }
 func (c *COAP)ParseArgs(args []string) {
     c.init()
@@ -54,11 +49,60 @@ func (c *COAP)Help() { c.HelpMsg("") }
 func (c *COAP)HelpMsg(msg string) {
     c.init()
 }
+    //p := reflect.TypeOf(i)
+    //q := reflect.Indirect(reflect.ValueOf(i))
+    //fmt.Println(p, q)
+
+    //ui := v.InterfaceData()
+    //fmt.Println("ui =", ui)
+    //fmt.Printf("ui = %d\n", v)
+*/
 
 
-func Parse(arg interface{}) {
-    fmt.Println("Parse(arg interface{})", arg)
-    st := reflect.TypeOf(arg)
-    fmt.Println(st)
-    fmt.Println(st.NumField())
+func verifySP(i interface{}) {  // Struct Pointer
+    v := reflect.ValueOf(i)
+    fmt.Println("v =", v)
+    k := v.Kind()
+    fmt.Println("k =", k)
+    if k != reflect.Ptr {
+        fmt.Fprintf(os.Stderr, "Need to be a ptr\n")
+        os.Exit(1)
+    }
+    s := reflect.Indirect(v)
+    fmt.Println("s =", s)
+    k = s.Kind()
+    fmt.Println("k =", k)
+    if k != reflect.Struct {
+        fmt.Fprintf(os.Stderr, "Need to be a struct\n")
+        os.Exit(1)
+    }
+    a := s.Addr()
+    fmt.Printf("a = %d\n", a)
+}
+
+
+func initial(i interface{}) {
+    verifySP(i)
+    ii := reflect.Indirect(reflect.ValueOf(i))
+    st := reflect.TypeOf(ii)
+    for idx := 0; idx < st.NumField(); idx++ {
+        f := st.Field(idx)
+        fmt.Println("f =", f) //, reflect.TypeOf(f))
+    }
+}
+
+
+func Parse(arg interface{}) { ParseArg(arg, os.Args[1:]) }
+func ParseArg(i interface{}, args []string) {
+    initial(i)
+    //fmt.Println("Parse(arg interface{})", arg)
+    //st := reflect.TypeOf(arg)
+    //fmt.Println(st)
+    //fmt.Println(st.NumField())
+}
+
+
+func Help(arg interface{}) { HelpMsg(arg, "") }
+func HelpMsg(i interface{}, msg string) {
+    initial(i)
 }
