@@ -8,10 +8,11 @@ import (
 
 
 type oaItem struct {    // option, argument item
-    short   string
-    long    string
-    must    bool
-    help    string
+    Short   string      // short name
+    Long    string      // long name
+    Must    bool        // must exists
+    HasDef  bool        // has default
+    HelpMsg string      // help message
     val     reflect.Value
     rsf     reflect.StructField
 }
@@ -64,8 +65,9 @@ func (c *COAP)HelpMsg(msg string) {
     c.init()
 }
     //p := reflect.TypeOf(i)
-    //q := reflect.Indirect(reflect.ValueOf(i))
-    //fmt.Println(p, q)
+    //v := reflect.ValueOf(i)
+    //q := reflect.Indirect(v)
+    //fmt.Println(p, q, v.CanSet(), q.CanSet())
 
     //ui := v.InterfaceData()
     //fmt.Println("ui =", ui)
