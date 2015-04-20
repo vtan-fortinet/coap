@@ -3,6 +3,8 @@ package coap
 import (
     "os"
     "fmt"
+    "unicode"
+    "strings"
     "reflect"
 )
 
@@ -11,8 +13,11 @@ type oaItem struct {    // option, argument item
     Short   string      // short name
     Long    string      // long name
     Must    bool        // must exists
+    Vname   string      // name for value in help
     HasDef  bool        // has default
     HelpMsg string      // help message
+    Cand    []string    // candidates
+    Grp     []*oaItem   // this is a group item if not nil
     val     reflect.Value
     rsf     reflect.StructField
 }
@@ -24,9 +29,92 @@ func (oa *oaItem)parse(args []string) (cnt int) {
 }
 
 
+func (oa *oaItem)splitOpt(line string) (ret []string) {
+    ret = make([]string, 0)
+    bg := 0
+    for idx, r := range line {
+        if ! unicode.IsSpace(r) { continue }
+        if idx > bg {
+            if len(ret) > 0 {
+                if strings.HasPrefix(ret[len(ret) - 1], "--") {
+                    // already has long, last will all for default
+                    ret = append(ret, line[bg:])
+                    return
+                }
+            }
+            ret = append(ret, line[bg:idx])
+        }
+        bg = idx + 1
+    }
+    return
+}
+
+
+func (oa *oaItem)initDefault(val reflect.Value, dat string) {
+}
+
+
+func (oa *oaItem)initOpts(line string) string {
+    // 1: short, 2: for long, 3: default
+    opts := oa.splitOpt(line)
+    for _, opt := range opts {
+        switch {
+        case opt[:2] == "--":
+            oa.Long = opt[2:]
+        case opt[:1] == "-":
+            oa.Short = opt[1:2]
+            if len(opt) > 2 {
+                oa.Vname = opt[2:]
+            }
+        default:
+            return opt
+        }
+    }
+    return ""
+}
+
+
+func (oa *oaItem)initCans(line string) {
+}
+
+
+func (oa *oaItem)initHelp(line string) {
+    if oa.HelpMsg == "" {
+        if strings.HasPrefix(line, "!") {
+            if strings.HasPrefix(line, "!!") {
+                oa.HelpMsg = line[1:]
+            } else {
+                oa.Must = true
+                oa.HelpMsg = strings.TrimSpace(line[1:])
+            }
+        } else {
+            oa.HelpMsg = line
+        }
+    } else {
+        oa.HelpMsg = oa.HelpMsg + "\n" + line
+    }
+}
+
+
 func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
     oa.rsf = rsf
     oa.val = val
+    //tagLines := strings.Split(rsf.Tag, "\n")
+    //fmt.Println("tags =", tagLines)
+    for _, l := range strings.Split(string(rsf.Tag), "\n") {
+        line := strings.TrimSpace(l)
+        switch {
+        case strings.HasPrefix(line, "---"):    // group
+        case strings.HasPrefix(line, "-"):      // short or long
+            dft := oa.initOpts(line)
+            oa.initDefault(val, dft)
+        case strings.HasPrefix(line, "{") && strings.HasSuffix(line, "}"):
+            // candidates
+            oa.initCans(line[1:len(line)-1])
+        default:    // help msg
+            oa.initHelp(line)
+        }
+    }
 }
 
 
