@@ -16,6 +16,7 @@ type oaItem struct {    // option, argument item
     Must    bool        // must exists
     HasDft  bool        // has default
     MsgDft  string      // mseeage in help about default value
+    StrDft  string      // str(default)
     Got     bool        // this item got from command line
     HelpLs  []string    // help message lines
     Cand    []string    // candidates
@@ -75,6 +76,14 @@ func isZero(v reflect.Value) (b bool) {
 
 
 func (oa *oaItem)initDefault(val reflect.Value, dat string) {
+    ds := strings.SplitN(dat, "|", 2)
+    if len(ds) == 2 { oa.MsgDft = ds[1] }
+    if ds[0] != "" {
+        oa.HasDft = true
+        oa.StrDft = ds[0]
+    } else if ! isZero(val) {
+        oa.HasDft = true
+    }
 }
 
 

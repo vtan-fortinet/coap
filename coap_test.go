@@ -2,6 +2,7 @@ package coap
 
 import (
     "testing"
+    "reflect"
 )
 
 
@@ -85,5 +86,46 @@ func TestInitOpts(tst *testing.T) {
     if oa.Short !=  "n" || oa.Long != "name" || oa.Vname != "NAME" || d != "dft|DEFATLT" {
         tst.Error("failed parse short and long")
     }
+}
 
+
+func TestInitDefault(tst *testing.T) {
+    var i int
+    oa := oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "10|Ten")
+    if ! oa.HasDft || oa.MsgDft != "Ten" || oa.StrDft != "10" {
+        tst.Error("failed to parse default1", oa)
+    }
+
+    oa = oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "10")
+    if ! oa.HasDft || oa.MsgDft != "" || oa.StrDft != "10" {
+        tst.Error("failed to parse default2", oa)
+    }
+
+    oa = oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "|Ten")
+    if oa.HasDft || oa.MsgDft != "Ten" || oa.StrDft != "" {
+        tst.Error("failed to parse default3", oa)
+    }
+
+    oa = oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "")
+    if oa.HasDft || oa.MsgDft != "" || oa.StrDft != "" {
+        tst.Error("failed to parse default4", oa)
+    }
+
+    i = 10
+    oa = oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "")
+    if ! oa.HasDft || oa.MsgDft != "" || oa.StrDft != "" {
+        tst.Error("failed to parse default5", oa)
+    }
+
+    i = 10
+    oa = oaItem{}
+    oa.initDefault(reflect.ValueOf(i), "|TEN")
+    if ! oa.HasDft || oa.MsgDft != "TEN" || oa.StrDft != "" {
+        tst.Error("failed to parse default6", oa)
+    }
 }
