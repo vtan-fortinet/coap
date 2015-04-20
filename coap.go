@@ -14,7 +14,8 @@ type oaItem struct {    // option, argument item
     Vname   string      // name for value in help
     Long    string      // long name
     Must    bool        // must exists
-    HasDef  bool        // has default
+    HasDft  bool        // has default
+    MsgDft  string      // mseeage in help about default value
     Got     bool        // this item got from command line
     HelpLs  []string    // help message lines
     Cand    []string    // candidates
@@ -112,6 +113,7 @@ func (oa *oaItem)initHelp(line string) {
             return
         }
     }
+    //oa.HelpLs = append(oa.HelpLs, strings.TrimSpace(line))
     oa.HelpLs = append(oa.HelpLs, line)
 }
 
