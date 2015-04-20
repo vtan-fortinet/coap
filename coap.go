@@ -11,11 +11,12 @@ import (
 
 type oaItem struct {    // option, argument item
     Short   string      // short name
+    Vname   string      // name for value in help
     Long    string      // long name
     Must    bool        // must exists
-    Vname   string      // name for value in help
     HasDef  bool        // has default
-    HelpMsg string      // help message
+    Got     bool        // this item got from command line
+    HelpLs  []string    // help message lines
     Cand    []string    // candidates
     Grp     []*oaItem   // this is a group item if not nil
     val     reflect.Value
@@ -46,7 +47,29 @@ func (oa *oaItem)splitOpt(line string) (ret []string) {
         }
         bg = idx + 1
     }
+    if bg < len(line) {
+        ret = append(ret, line[bg:])
+    }
     return
+}
+
+
+func isZero(v reflect.Value) (b bool) {
+    switch v.Kind() {
+    // case reflect.Bool:
+    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+         return v.Int() == 0
+    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+         return v.Uint() == 0
+    case reflect.Float32, reflect.Float64:
+         return v.Float() == 0.0
+    //case reflect.Complex64, reflect.Complex128:
+    //    return v.Complex() 
+    case reflect.Slice, reflect.String:
+        return v.Len() == 0
+    default:
+        panic("Not support type " + v.Kind().String())
+    }
 }
 
 
@@ -58,6 +81,7 @@ func (oa *oaItem)initOpts(line string) string {
     // 1: short, 2: for long, 3: default
     opts := oa.splitOpt(line)
     for _, opt := range opts {
+        fmt.Printf("[%s]\n", opt)
         switch {
         case opt[:2] == "--":
             oa.Long = opt[2:]
@@ -79,20 +103,16 @@ func (oa *oaItem)initCans(line string) {
 
 
 func (oa *oaItem)initHelp(line string) {
-    if oa.HelpMsg == "" {
+    if oa.HelpLs == nil {
+        //if line == "" { return }
+        oa.HelpLs = make([]string, 0, 10)
         if strings.HasPrefix(line, "!") {
-            if strings.HasPrefix(line, "!!") {
-                oa.HelpMsg = line[1:]
-            } else {
-                oa.Must = true
-                oa.HelpMsg = strings.TrimSpace(line[1:])
-            }
-        } else {
-            oa.HelpMsg = line
+            oa.Must = ! strings.HasPrefix(line, "!!")
+            oa.HelpLs = append(oa.HelpLs, strings.TrimSpace(line[1:]))
+            return
         }
-    } else {
-        oa.HelpMsg = oa.HelpMsg + "\n" + line
     }
+    oa.HelpLs = append(oa.HelpLs, line)
 }
 
 
