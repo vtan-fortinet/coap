@@ -50,7 +50,7 @@ type Arg struct {
 
     // --- start a group, default select will set in instance
     // default arg can set in instance or here
-    G1 string  `---GRP "filename"|-b
+    G1 string  `---GRP b|"filename"
                 Help for this group
                 -b --begin
                 help for begin: begin the service

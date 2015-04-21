@@ -26,21 +26,14 @@ type oaItem struct {    // option, argument item
 }
 
 
-func (oa *oaItem)parse(args []string) (cnt int) {
-    // parse option/argument, return how many args used by this item
-    return
-}
-
-
-func (oa *oaItem)splitOpt(line string) (ret []string) {
-    ret = make([]string, 0)
+func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
+    ret = make([]string, 0, 2)
     bg := 0
     for idx, r := range line {
         if ! unicode.IsSpace(r) { continue }
         if idx > bg {
             if len(ret) > 0 {
-                if strings.HasPrefix(ret[len(ret) - 1], "--") {
-                    // already has long, last will all for default
+                if doneF != nil && doneF(ret) {
                     ret = append(ret, line[bg:])
                     return
                 }
@@ -53,6 +46,39 @@ func (oa *oaItem)splitOpt(line string) (ret []string) {
         ret = append(ret, line[bg:])
     }
     return
+}
+
+
+func (oa *oaItem)parse(args []string) (cnt int) {
+    // parse option/argument, return how many args used by this item
+    return
+}
+
+
+func (oa *oaItem)splitOpt(line string) (ret []string) {
+    ret = splitSpaceF(line, func(r []string) bool {
+                return strings.HasPrefix(r[len(r) - 1], "--")
+           })
+    return
+    //bg := 0
+    //for idx, r := range line {
+    //    if ! unicode.IsSpace(r) { continue }
+    //    if idx > bg {
+    //        if len(ret) > 0 {
+    //            if strings.HasPrefix(ret[len(ret) - 1], "--") {
+    //                // already has long, last will all for default
+    //                ret = append(ret, line[bg:])
+    //                return
+    //            }
+    //        }
+    //        ret = append(ret, line[bg:idx])
+    //    }
+    //    bg = idx + 1
+    //}
+    //if bg < len(line) {
+    //    ret = append(ret, line[bg:])
+    //}
+    //return
 }
 
 
@@ -132,18 +158,29 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
     oa.val = val
     //tagLines := strings.Split(rsf.Tag, "\n")
     //fmt.Println("tags =", tagLines)
+    isGrp := false
+    soa := oa
     for _, l := range strings.Split(string(rsf.Tag), "\n") {
         line := strings.TrimSpace(l)
         switch {
         case strings.HasPrefix(line, "---"):    // group
+            isGrp = true
+            oa.Grp = make([]*oaItem, 0, 5)
+            ret := splitSpaceF(line, func(r []string) bool { return len(r) > 0 })
+            oa.Vname = ret[0][3:]
+            if len(ret) > 1 { oa.initDefault(val, ret[1]) }
         case strings.HasPrefix(line, "-"):      // short or long
-            dft := oa.initOpts(line)
-            oa.initDefault(val, dft)
+            if isGrp {
+                soa = &oaItem{}
+                oa.Grp = append(oa.Grp, soa)
+            }
+            dft := soa.initOpts(line)
+            soa.initDefault(val, dft)
         case strings.HasPrefix(line, "{") && strings.HasSuffix(line, "}"):
             // candidates
-            oa.initCans(line[1:len(line)-1])
+            soa.initCans(line[1:len(line)-1])
         default:    // help msg
-            oa.initHelp(line)
+            soa.initHelp(line)
         }
     }
 }
