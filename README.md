@@ -24,24 +24,24 @@ type Arg struct {
     S1 string  `-n --name
                 user name`
     // option help name, default will use long name upper
-    S1 string  `-nNAME --name
+    S2 string  `-nNAME --name
                 user name`
     // option, limit the selection
-    S2 string  `-t --type
+    S3 string  `-t --type
                 {"admin", "worker"}
                 user type`
 
     // Set default when instance the struct.
     // If the default is same as golang default, then can attach on first line
     // if not exists default, means option and argument will stay together
-    S3 string  `-p --password ""
+    S4 string  `-p --password ""|default_desc_in_help
                 user password`
 
     // Config must exists by lead help with !
     // So if not set default, then this means -s must exists, and must has arg
     // Start help with '!!' if help do need start with ! but not must exists
     // use '! !' if if help do need start with ! and must exists
-    S4 string `-s --start
+    S5 string `-s --start
                !start command`
 
     // group, can select one of them, but no more then one
