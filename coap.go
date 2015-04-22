@@ -6,6 +6,7 @@ import (
     "unicode"
     "strings"
     "reflect"
+    "encoding/json"
 )
 
 
@@ -19,7 +20,7 @@ type oaItem struct {    // option, argument item
     StrDft  string      // str(default)
     Got     bool        // this item got from command line
     HelpLs  []string    // help message lines
-    Cand    []string    // candidates
+    Cans    []string    // candidates
     Grp     []*oaItem   // this is a group item if not nil
     val     reflect.Value
     rsf     reflect.StructField
@@ -32,6 +33,7 @@ type oaInfo struct {
 
 
 var infos map[uintptr]*oaInfo
+
 
 func init() {
     infos = make(map[uintptr]*oaInfo)
@@ -125,7 +127,14 @@ func (oa *oaItem)initOpts(line string) string {
 }
 
 
-func (oa *oaItem)initCans(line string) {
+func (oa *oaItem)initCans(line []byte) {
+    vs := make([]interface{}, 0, 5)
+    err := json.Unmarshal(line, &vs)
+    if err != nil { panic("Failed to process candicates," + err.Error()) }
+    oa.Cans = make([]string, 0, 5)
+    for _, v := range vs {
+        oa.Cans = append(oa.Cans, fmt.Sprint(v))
+    }
 }
 
 
@@ -166,10 +175,12 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
                 oa.Grp = append(oa.Grp, soa)
             }
             dft := soa.initOpts(line)
-            soa.initDefault(val, dft)
-        case strings.HasPrefix(line, "{") && strings.HasSuffix(line, "}"):
+            if ! isGrp {
+                soa.initDefault(val, dft)
+            }
+        case strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]"):
             // candidates
-            soa.initCans(line[1:len(line)-1])
+            soa.initCans([]byte(line))
         default:    // help msg
             soa.initHelp(line)
         }

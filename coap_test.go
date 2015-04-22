@@ -151,7 +151,7 @@ type A struct {
 }
 
 
-func TestInitGrp(tst *testing.T) {
+func TestInitGrp1(tst *testing.T) {
     v := reflect.ValueOf(A{})
     t := v.Type()
     oa := oaItem{}
@@ -205,4 +205,60 @@ func TestInitGrp(tst *testing.T) {
         tst.Error("failed to init grH3", oa.HelpLs)
     }
 
+}
+
+
+type B struct {
+    g0 *G    `---GRP 
+              -o --open
+              group open help
+            `
+
+    g1 *G    `---GRP b
+              -a --abc
+              group abc help
+              -b --bac
+              group bac help
+            `
+}
+
+
+func TestInitGrp2(tst *testing.T) {
+    v := reflect.ValueOf(B{})
+    t := v.Type()
+    oa := oaItem{}
+    oa.init(t.Field(0), v.Field(0))
+    if oa.Grp == nil || len(oa.Grp) != 1 || oa.Vname != "GRP" || oa.Must {
+        tst.Error("failed to init grp0", oa)
+    }
+    if oa.HasDft || len(oa.HelpLs) > 0 || oa.Must {
+        tst.Error("failed to init grP0", oa.HasDft, oa.HelpLs)
+    }
+    if oa.Grp[0].Short != "o" || oa.Grp[0].Long != "open" {
+        tst.Error("failed to init GRP0", oa.Grp[0])
+    }
+    if len(oa.Grp[0].HelpLs) < 1 || oa.Grp[0].HelpLs[0] != "group open help" {
+        tst.Error("failed to init GRH0", oa.Grp[0])
+    }
+
+    oa = oaItem{}
+    oa.init(t.Field(1), v.Field(1))
+    if oa.Grp == nil || len(oa.Grp) != 2 || oa.Vname != "GRP" || oa.Must {
+        tst.Error("failed to init grp1", oa)
+    }
+    if ! oa.HasDft || len(oa.HelpLs) > 0 || oa.Must {
+        tst.Error("failed to init grP1", oa.HasDft, oa.HelpLs)
+    }
+    if oa.Grp[0].Short != "a" || oa.Grp[0].Long != "abc" {
+        tst.Error("failed to init GRP1", oa.Grp[0])
+    }
+    if len(oa.Grp[0].HelpLs) < 1 || oa.Grp[0].HelpLs[0] != "group abc help" {
+        tst.Error("failed to init GRH1", oa.Grp[0])
+    }
+    if oa.Grp[1].Short != "b" || oa.Grp[1].Long != "bac" {
+        tst.Error("failed to init GRP1", oa.Grp[1])
+    }
+    if len(oa.Grp[1].HelpLs) < 1 || oa.Grp[1].HelpLs[0] != "group bac help" {
+        tst.Error("failed to init GRH1", oa.Grp[1])
+    }
 }

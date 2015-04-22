@@ -26,9 +26,9 @@ type Arg struct {
     // option help name, default will use long name upper
     S2 string  `-nNAME --name
                 user name`
-    // option, limit the selection
+    // option, limit the selection, is a json array of number or string
     S3 string  `-t --type
-                {"admin", "worker"}
+                ["admin", "worker"]
                 user type`
 
     // Set default when instance the struct.
