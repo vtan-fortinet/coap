@@ -26,17 +26,27 @@ type oaItem struct {    // option, argument item
 }
 
 
+type oaInfo struct {
+    oas []*oaItem
+}
+
+
+var infos map[uintptr]*oaInfo
+
+func init() {
+    infos = make(map[uintptr]*oaInfo)
+}
+
+
 func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
     ret = make([]string, 0, 2)
     bg := 0
     for idx, r := range line {
         if ! unicode.IsSpace(r) { continue }
         if idx > bg {
-            if len(ret) > 0 {
-                if doneF != nil && doneF(ret) {
-                    ret = append(ret, line[bg:])
-                    return
-                }
+            if len(ret) > 0 && doneF != nil && doneF(ret) {
+                ret = append(ret, line[bg:])
+                return
             }
             ret = append(ret, line[bg:idx])
         }
@@ -60,25 +70,6 @@ func (oa *oaItem)splitOpt(line string) (ret []string) {
                 return strings.HasPrefix(r[len(r) - 1], "--")
            })
     return
-    //bg := 0
-    //for idx, r := range line {
-    //    if ! unicode.IsSpace(r) { continue }
-    //    if idx > bg {
-    //        if len(ret) > 0 {
-    //            if strings.HasPrefix(ret[len(ret) - 1], "--") {
-    //                // already has long, last will all for default
-    //                ret = append(ret, line[bg:])
-    //                return
-    //            }
-    //        }
-    //        ret = append(ret, line[bg:idx])
-    //    }
-    //    bg = idx + 1
-    //}
-    //if bg < len(line) {
-    //    ret = append(ret, line[bg:])
-    //}
-    //return
 }
 
 
@@ -197,40 +188,6 @@ type COAP struct {
 }
 
 
-/*
-func (c *COAP)init() {
-    if c.items != nil { return }
-    //panic("init")
-    c.items = make([]oaItem, 0, 10)
-    st := reflect.TypeOf(*c)
-    fmt.Println(st)
-    fmt.Println(st.Field(0))
-    fmt.Println(st.Field(1))
-    fmt.Println(st.Field(2))
-    fmt.Println(st.NumField())
-}
-
-func (c *COAP)Parse() { c.ParseArgs(os.Args[1:]) }
-func (c *COAP)ParseArgs(args []string) {
-    c.init()
-}
-
-
-func (c *COAP)Help() { c.HelpMsg("") }
-func (c *COAP)HelpMsg(msg string) {
-    c.init()
-}
-    //p := reflect.TypeOf(i)
-    //v := reflect.ValueOf(i)
-    //q := reflect.Indirect(v)
-    //fmt.Println(p, q, v.CanSet(), q.CanSet())
-
-    //ui := v.InterfaceData()
-    //fmt.Println("ui =", ui)
-    //fmt.Printf("ui = %d\n", v)
-*/
-
-
 func verifySP(i interface{}) {  // Struct Pointer
     v := reflect.ValueOf(i)
     fmt.Println("v =", v)
@@ -253,26 +210,28 @@ func verifySP(i interface{}) {  // Struct Pointer
 }
 
 
-//func oneField(sf *reflect.StructField) {
-//    fmt.Println("name =", sf.Name)
-//    fmt.Println("tag =", sf.Tag)
-//}
-
-func initial(i interface{}) {
+func initial(i interface{}) *oaInfo {
     verifySP(i)
-    ii := reflect.Indirect(reflect.ValueOf(i))
+    v := reflect.ValueOf(i)
+    info, ok := infos[v.Pointer()]
+    if ok {     // already init, just return it
+        return info
+    }
+    info = &oaInfo{oas: make([]*oaItem, 0, 5)}
+    ii := reflect.Indirect(v)
     fmt.Println("ii =", ii)
     st := ii.Type()
     fmt.Println("st =", st)
     for idx := 0; idx < st.NumField(); idx++ {
         fs := st.Field(idx)
-        //oneField(&f)
         fv := ii.Field(idx)
         fmt.Println("fv =", fv, reflect.TypeOf(fv))
         fv.SetString("MyName")
         it := &oaItem{}
         it.init(fs, fv)
+        info.oas = append(info.oas, it)
     }
+    return info
 }
 
 
