@@ -20,6 +20,10 @@ type Arg struct {
     B2 bool   `-v --verbose
                increase output verbosity`
 
+    // support -vvv
+    A1 []bool `-v
+               increase output verbosity`
+
     // option, short and long, sep by space
     S1 string  `-n --name
                 user name`
