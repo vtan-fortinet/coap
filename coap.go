@@ -1,8 +1,10 @@
 package coap
 
 import (
+    "io"
     "os"
     "fmt"
+    "bytes"
     "unicode"
     "strings"
     "reflect"
@@ -57,12 +59,6 @@ func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
     if bg < len(line) {
         ret = append(ret, line[bg:])
     }
-    return
-}
-
-
-func (oa *oaItem)parse(args []string) (cnt int) {
-    // parse option/argument, return how many args used by this item
     return
 }
 
@@ -184,6 +180,56 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
         default:    // help msg
             soa.initHelp(line)
         }
+    }
+}
+
+
+func (oa *oaItem)parse(args []string) (cnt int) {
+    // parse option/argument, return how many args used by this item
+    return
+}
+
+
+func (oa *oaItem)helpShort(w io.Writer) {
+    if oa.Short == "" && oa.Long == "" && len(oa.Grp) == 0 {
+        return
+    }
+    if ! oa.Must { fmt.Fprintf(w, "[") }
+    if len(oa.Grp) > 0 {    // group entry
+        s := ""
+        for _, g := range oa.Grp {
+            fmt.Fprintf(w, s)
+            g.helpShort(w)
+            s = "|"
+        }
+    } else {                // regular entry
+        if oa.Short != "" {
+            fmt.Fprintf(w, "-%s", oa.Short)
+        } else if oa.Long != "" {
+            fmt.Fprintf(w, "--%s", oa.Long)
+        }
+    }
+    if oa.Vname != "" {
+        fmt.Fprintf(w, " ")
+        if oa.HasDft { fmt.Fprintf(w, "[") }
+        fmt.Fprintf(w, oa.Vname)
+        if oa.HasDft { fmt.Fprintf(w, "]") }
+    }
+    if ! oa.Must { fmt.Fprintf(w, "]") }
+}
+
+
+func (oa *oaItem)helpLong(w io.Writer, align int) {
+    s := bytes.Repeat([]byte(" "), align)
+    b := bytes.Repeat([]byte(" "), align)
+    copy(b[1:], "-" + oa.Short)
+    copy(b[4:], "--" + oa.Long)
+    w.Write(b)
+    if len(oa.HelpLs) <= 0 { return }
+    fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
+    for _, l := range oa.HelpLs {
+        w.Write(s)
+        fmt.Fprintf(w, "%s\n", l)
     }
 }
 
