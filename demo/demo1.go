@@ -22,5 +22,6 @@ func main() {
     coap.Help(&m)
     //coap.Parse(&m)
     fmt.Println("uname =", m.Uname)
+    fmt.Println(os.Args)
     os.Exit(0)
 }
