@@ -291,6 +291,15 @@ func initial(i interface{}) *oaInfo {
     return info
 }
 
+/*
+func main() {
+    a := make([]byte, 0)
+    t := reflect.TypeOf(a)
+    v := reflect.ValueOf(a)
+    fmt.Println(a, v, t.Kind())
+    fmt.Println(t.Elem().Kind() == reflect.Uint8)
+}
+*/
 
 func Parse(arg interface{}) { ParseArg(arg, os.Args[1:]) }
 func ParseArg(i interface{}, args []string) {
