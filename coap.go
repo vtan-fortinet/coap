@@ -4,6 +4,7 @@ import (
     "io"
     "os"
     "fmt"
+    "path"
     "bytes"
     "unicode"
     "strings"
@@ -83,6 +84,7 @@ func isZero(v reflect.Value) (b bool) {
     //case reflect.Complex64, reflect.Complex128:
     //    return v.Complex() 
     case reflect.Slice, reflect.String:
+        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
         return v.Len() == 0
     default:
         panic("Not support type " + v.Kind().String())
@@ -93,9 +95,11 @@ func isZero(v reflect.Value) (b bool) {
 func (oa *oaItem)initDefault(val reflect.Value, dat string) {
     ds := strings.SplitN(dat, "|", 2)
     if len(ds) == 2 { oa.MsgDft = ds[1] }
+    //fmt.Printf("ds = %d, [%s], %v\n", len(ds), ds[0], oa.HasDft)
     if ds[0] != "" {
         oa.HasDft = true
         oa.StrDft = ds[0]
+        //fmt.Printf("StrDft=[%s]\n", oa.StrDft)
     } else if ! isZero(val) {
         oa.HasDft = true
     }
@@ -106,7 +110,7 @@ func (oa *oaItem)initOpts(line string) string {
     // 1: short, 2: for long, 3: default
     opts := oa.splitOpt(line)
     for _, opt := range opts {
-        fmt.Printf("[%s]\n", opt)
+        //fmt.Printf("[%s]\n", opt)
         switch {
         case opt[:2] == "--":
             oa.Long = opt[2:]
@@ -212,7 +216,11 @@ func (oa *oaItem)helpShort(w io.Writer) {
     if oa.Vname != "" {
         fmt.Fprintf(w, " ")
         if oa.HasDft { fmt.Fprintf(w, "[") }
-        fmt.Fprintf(w, oa.Vname)
+        if oa.Vname == "" && len(oa.Long) > 0 {
+            fmt.Fprintf(w, strings.ToUpper(oa.Long))
+        } else {
+            fmt.Fprintf(w, oa.Vname)
+        }
         if oa.HasDft { fmt.Fprintf(w, "]") }
     }
     if ! oa.Must { fmt.Fprintf(w, "]") }
@@ -227,7 +235,7 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
     w.Write(b)
     if len(oa.HelpLs) <= 0 { return }
     fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
-    for _, l := range oa.HelpLs {
+    for _, l := range oa.HelpLs[1:] {
         w.Write(s)
         fmt.Fprintf(w, "%s\n", l)
     }
@@ -247,23 +255,23 @@ type COAP struct {
 
 func verifySP(i interface{}) {  // Struct Pointer
     v := reflect.ValueOf(i)
-    fmt.Println("v =", v)
+    //fmt.Println("v =", v)
     k := v.Kind()
-    fmt.Println("k =", k)
+    //fmt.Println("k =", k)
     if k != reflect.Ptr {
         fmt.Fprintf(os.Stderr, "Need to be a ptr\n")
         os.Exit(1)
     }
     s := reflect.Indirect(v)
-    fmt.Println("s =", s)
+    //fmt.Println("s =", s)
     k = s.Kind()
-    fmt.Println("k =", k)
+    //fmt.Println("k =", k)
     if k != reflect.Struct {
         fmt.Fprintf(os.Stderr, "Need to be a struct\n")
         os.Exit(1)
     }
-    a := s.Addr()
-    fmt.Printf("a = %d\n", a)
+    //a := s.Addr()
+    //fmt.Printf("a = %d\n", a)
 }
 
 
@@ -276,14 +284,14 @@ func initial(i interface{}) *oaInfo {
     }
     info = &oaInfo{oas: make([]*oaItem, 0, 5)}
     ii := reflect.Indirect(v)
-    fmt.Println("ii =", ii)
+    //fmt.Println("ii =", ii)
     st := ii.Type()
-    fmt.Println("st =", st)
+    //fmt.Println("st =", st)
     for idx := 0; idx < st.NumField(); idx++ {
         fs := st.Field(idx)
         fv := ii.Field(idx)
-        fmt.Println("fv =", fv, reflect.TypeOf(fv))
-        fv.SetString("MyName")
+        //fmt.Println("fv =", fv, reflect.TypeOf(fv))
+        //fv.SetString("MyName")
         it := &oaItem{}
         it.init(fs, fv)
         info.oas = append(info.oas, it)
@@ -313,5 +321,18 @@ func ParseArg(i interface{}, args []string) {
 
 func Help(arg interface{}) { HelpMsg(arg, "") }
 func HelpMsg(i interface{}, msg string) {
-    initial(i)
+    of := initial(i)
+    a := 0
+    fmt.Fprintf(os.Stdout, "Usage: %s ", path.Base(os.Args[0]))
+    for _, oa := range of.oas {
+        oa.helpShort(os.Stdout)
+        if i := len(oa.Short) + len(oa.Long) + 7; i > a {
+            a = i
+        }
+    }
+    fmt.Fprintf(os.Stdout, "\n")
+    for _, oa := range of.oas {
+        oa.helpLong(os.Stdout, a)
+    }
+    fmt.Fprintf(os.Stdout, "\n")
 }
