@@ -301,9 +301,13 @@ func main() {
 }
 */
 
-func Parse(arg interface{}) { ParseArg(arg, os.Args[1:]) }
-func ParseArg(i interface{}, args []string) {
+func Parse(arg interface{}) {
+    msg := ParseArg(arg, os.Args[1:])
+    HelpMsg(arg, msg)
+}
+func ParseArg(i interface{}, args []string) (msg string) {
     initial(i)
+    return
 }
 
 
@@ -311,6 +315,9 @@ func Help(arg interface{}) { HelpMsg(arg, "") }
 func HelpMsg(i interface{}, msg string) {
     of := initial(i)
     a := 0
+    if msg != "" {
+        fmt.Fprintf(os.Stdout, "%s\n", msg)
+    }
     fmt.Fprintf(os.Stdout, "Usage: %s ", path.Base(os.Args[0]))
     for _, oa := range of.oas {
         oa.helpShort(os.Stdout)
