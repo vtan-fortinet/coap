@@ -230,8 +230,8 @@ func (oa *oaItem)helpShort(w io.Writer) {
 func (oa *oaItem)helpLong(w io.Writer, align int) {
     s := bytes.Repeat([]byte(" "), align)
     b := bytes.Repeat([]byte(" "), align)
-    copy(b[1:], "-" + oa.Short)
-    copy(b[4:], "--" + oa.Long)
+    copy(b[1:], "-" + oa.Short + ",")
+    copy(b[5:], "--" + oa.Long)
     w.Write(b)
     if len(oa.HelpLs) <= 0 { return }
     fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
@@ -255,23 +255,17 @@ type COAP struct {
 
 func verifySP(i interface{}) {  // Struct Pointer
     v := reflect.ValueOf(i)
-    //fmt.Println("v =", v)
     k := v.Kind()
-    //fmt.Println("k =", k)
     if k != reflect.Ptr {
         fmt.Fprintf(os.Stderr, "Need to be a ptr\n")
         os.Exit(1)
     }
     s := reflect.Indirect(v)
-    //fmt.Println("s =", s)
     k = s.Kind()
-    //fmt.Println("k =", k)
     if k != reflect.Struct {
         fmt.Fprintf(os.Stderr, "Need to be a struct\n")
         os.Exit(1)
     }
-    //a := s.Addr()
-    //fmt.Printf("a = %d\n", a)
 }
 
 
@@ -284,9 +278,7 @@ func initial(i interface{}) *oaInfo {
     }
     info = &oaInfo{oas: make([]*oaItem, 0, 5)}
     ii := reflect.Indirect(v)
-    //fmt.Println("ii =", ii)
     st := ii.Type()
-    //fmt.Println("st =", st)
     for idx := 0; idx < st.NumField(); idx++ {
         fs := st.Field(idx)
         fv := ii.Field(idx)
@@ -312,10 +304,6 @@ func main() {
 func Parse(arg interface{}) { ParseArg(arg, os.Args[1:]) }
 func ParseArg(i interface{}, args []string) {
     initial(i)
-    //fmt.Println("Parse(arg interface{})", arg)
-    //st := reflect.TypeOf(arg)
-    //fmt.Println(st)
-    //fmt.Println(st.NumField())
 }
 
 
@@ -326,7 +314,7 @@ func HelpMsg(i interface{}, msg string) {
     fmt.Fprintf(os.Stdout, "Usage: %s ", path.Base(os.Args[0]))
     for _, oa := range of.oas {
         oa.helpShort(os.Stdout)
-        if i := len(oa.Short) + len(oa.Long) + 7; i > a {
+        if i := len(oa.Short) + len(oa.Long) + 8; i > a {
             a = i
         }
     }
