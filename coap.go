@@ -363,6 +363,15 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             ps = append(ps, args[idx])
         }
     }
+    for _, oa := range oas {
+        if oa.Must && ! oa.Got {
+            if oa.Short != "" {
+                msg = "Missed option -" + oa.Short
+            } else {
+                msg = "Missed option --" + oa.Long
+            }
+        }
+    }
     return
 }
 
