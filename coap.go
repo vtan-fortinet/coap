@@ -188,12 +188,6 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
 }
 
 
-func (oa *oaItem)parse(args []string) (cnt int) {
-    // parse option/argument, return how many args used by this item
-    return
-}
-
-
 func (oa *oaItem)helpShort(w io.Writer) {
     if oa.Short == "" && oa.Long == "" && len(oa.Grp) == 0 {
         return
@@ -253,6 +247,18 @@ type COAP struct {
 }
 
 
+func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
+    // parse option/argument
+    // got = 0 : not match
+    // got = 1 : took opt, but not arg
+    // got = 2 : took opt and arg
+    // err: error message
+    if ("-" + oa.Short) != *opt || ("--" + oa.Long) != *opt { return }
+    got = 1
+    return
+}
+
+
 func verifySP(i interface{}) {  // Struct Pointer
     v := reflect.ValueOf(i)
     k := v.Kind()
@@ -301,32 +307,82 @@ func main() {
 }
 */
 
-func Parse(arg interface{}) {
-    msg := ParseArg(arg, os.Args[1:])
-    HelpMsg(arg, msg)
+
+func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
+    for _, oa := range oas {
+        got, err = oa.parse(opt, arg)
+        if got != 0 || err != "" { return }
+    }
+    if got == 0 {
+        err = "Don't know option: " + *opt
+    }
+    return
 }
-func ParseArg(i interface{}, args []string) (msg string) {
-    initial(i)
+
+
+func Parse(i interface{}) []string {
+    msg, ps := ParseArg(i, os.Args[1:])
+    if msg != "" {
+        HelpMsg(i, msg)
+        os.Exit(1)
+    }
+    return ps
+}
+
+func get_next(idx int, args []string) (o, a *string) {
+    o = &(args[idx])
+    if idx < (len(args) - 1) && ! strings.HasPrefix(args[idx + 1], "-") {
+         a = &(args[idx + 1])
+    }
+    return
+}
+func ParseArg(i interface{}, args []string) (msg string, ps []string) {
+    oi := initial(i)
+    got := 0
+    ps = make([]string, 0, 5)
+    for idx := 0; idx < len(args); idx++ {
+        switch {
+        case strings.HasPrefix(args[idx], "--"):
+            o, a := get_next(idx, args)
+            got, msg = oasParse(oi.oas, o, a)
+            if msg != "" { return }
+            if got > 1 { idx = idx + 1 }
+        case strings.HasPrefix(args[idx], "-"):
+            o, a := get_next(idx, args)
+            opts := *o
+            for i := 1; i < len(opts) - 1; i++ {
+                x := "-" + opts[i:i+1]
+                got, msg = oasParse(oi.oas, &x, nil)
+                if msg != "" { return }
+            }
+            opts = opts[:1] + opts[len(opts) - 1:]
+            got, msg = oasParse(oi.oas, &opts, a)
+            if msg != "" { return }
+            if got > 1 { idx = idx + 1 }
+        default:
+            ps = append(ps, args[idx])
+        }
+    }
     return
 }
 
 
 func Help(arg interface{}) { HelpMsg(arg, "") }
 func HelpMsg(i interface{}, msg string) {
-    of := initial(i)
+    oi := initial(i)
     a := 0
     if msg != "" {
         fmt.Fprintf(os.Stdout, "%s\n", msg)
     }
     fmt.Fprintf(os.Stdout, "Usage: %s ", path.Base(os.Args[0]))
-    for _, oa := range of.oas {
+    for _, oa := range oi.oas {
         oa.helpShort(os.Stdout)
         if i := len(oa.Short) + len(oa.Long) + 8; i > a {
             a = i
         }
     }
     fmt.Fprintf(os.Stdout, "\n")
-    for _, oa := range of.oas {
+    for _, oa := range oi.oas {
         oa.helpLong(os.Stdout, a)
     }
     fmt.Fprintf(os.Stdout, "\n")
