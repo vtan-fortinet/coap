@@ -262,3 +262,30 @@ func TestInitGrp2(tst *testing.T) {
         tst.Error("failed to init GRH1", oa.Grp[1])
     }
 }
+
+
+func TestGet_next(tst *testing.T) {
+    args := []string{"-a", "b"}
+    o, a := get_next(0, args)
+    if *o != "-a" || *a != "b" {
+        tst.Error("failed to get_next1", o, a)
+    }
+
+    args = []string{"-a"}
+    o, a = get_next(0, args)
+    if *o != "-a" || a != nil {
+        tst.Error("failed to get_next2", o, a)
+    }
+
+    args = []string{"-a", "-b"}
+    o, a = get_next(0, args)
+    if *o != "-a" || a != nil {
+        tst.Error("failed to get_next3", o, a)
+    }
+
+    args = []string{"-a", "-b", "c"}
+    o, a = get_next(1, args)
+    if *o != "-b" || *a != "c" {
+        tst.Error("failed to get_next4", o, a)
+    }
+}
