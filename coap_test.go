@@ -289,3 +289,104 @@ func TestGet_next(tst *testing.T) {
         tst.Error("failed to get_next4", o, a)
     }
 }
+
+
+func TestSetValuei(tst *testing.T) {
+    var i int
+    var i8 int8
+    var i16 int16
+    var i32 int32
+    var i64 int64
+
+    v := reflect.ValueOf(&i).Elem()
+    err := setValue(&v, "-12")
+    if err != "" || i != -12 {
+        tst.Error("failed to setValuei")
+    }
+
+    v = reflect.ValueOf(&i8).Elem()
+    err = setValue(&v, "-123")
+    if err != "" || i8 != -123 {
+        tst.Error("failed to setValuei8")
+    }
+
+    v = reflect.ValueOf(&i16).Elem()
+    err = setValue(&v, "-12345")
+    if err != "" || i16 != -12345 {
+        tst.Error("failed to setValuei16")
+    }
+
+    v = reflect.ValueOf(&i32).Elem()
+    err = setValue(&v, "-1234578")
+    if err != "" || i32 != -1234578 {
+        tst.Error("failed to setValuei32")
+    }
+
+    v = reflect.ValueOf(&i64).Elem()
+    err = setValue(&v, "-123457890")
+    if err != "" || i64 != -123457890 {
+        tst.Error("failed to setValuei64")
+    }
+}
+
+
+func TestSetValueu(tst *testing.T) {
+    var u uint
+    v := reflect.ValueOf(&u).Elem()
+    err := setValue(&v, "12")
+    if err != "" || u != 12 {
+        tst.Error("failed to setValueu")
+    }
+
+    var u8 uint8
+    v = reflect.ValueOf(&u8).Elem()
+    err = setValue(&v, "123")
+    if err != "" || u8 != 123 {
+        tst.Error("failed to setValueu8")
+    }
+
+    var u16 uint16
+    v = reflect.ValueOf(&u16).Elem()
+    err = setValue(&v, "12345")
+    if err != "" || u16 != 12345 {
+        tst.Error("failed to setValueu16")
+    }
+
+    var u32 uint32
+    v = reflect.ValueOf(&u32).Elem()
+    err = setValue(&v, "1234578")
+    if err != "" || u32 != 1234578 {
+        tst.Error("failed to setValueu32")
+    }
+
+    var u64 uint64
+    v = reflect.ValueOf(&u64).Elem()
+    err = setValue(&v, "123457890")
+    if err != "" || u64 != 123457890 {
+        tst.Error("failed to setValueu64")
+    }
+}
+
+
+func TestSetValuefs(tst *testing.T) {
+    var f32 float32
+    v := reflect.ValueOf(&f32).Elem()
+    err := setValue(&v, "-12.34")
+    if err != "" || f32 != -12.34 {
+        tst.Error("failed to setValuef32")
+    }
+
+    var f64 float64
+    v = reflect.ValueOf(&f64).Elem()
+    err = setValue(&v, "123456.789")
+    if err != "" || f64 != 123456.789 {
+        tst.Error("failed to setValuef64")
+    }
+
+    var s string
+    v = reflect.ValueOf(&s).Elem()
+    err = setValue(&v, "abc123456.789")
+    if err != "" || s != "abc123456.789" {
+        tst.Error("failed to setValues")
+    }
+}
