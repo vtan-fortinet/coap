@@ -248,6 +248,36 @@ type COAP struct {
 }
 
 
+func setValue(val *reflect.Value, dat string) (err string) {
+    switch val.Kind() {
+    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+        i, e := strconv.ParseInt(dat, 10, 64)
+        if e != nil { return e.Error() }
+        val.SetInt(i)
+    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+        u, e := strconv.ParseUint(dat, 10, 64)
+        if e != nil { return e.Error() }
+        val.SetUint(u)
+        //return v.Uint() == 0
+    case reflect.Float32, reflect.Float64:
+        f, e := strconv.ParseFloat(dat, 64)
+        if e != nil { return e.Error() }
+        val.SetFloat(f)
+        //return v.Float() == 0.0
+    //case reflect.Complex64, reflect.Complex128:
+    //    return v.Complex() 
+    case reflect.String:
+        val.SetString(dat)
+    //case reflect.Slice:
+        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
+        //return v.Len() == 0
+    default:
+        return "Not support type " + val.Kind().String()
+    }
+    return
+}
+
+
 func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // parse option/argument
     // got = 0 : not match
@@ -275,39 +305,23 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         return
     }
     got = 2
-    switch oa.val.Kind() {
-    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-        i, e := strconv.ParseInt(pa, 10, 64)
-        if e != nil {
-            err = e.Error()
-        } else {
-            oa.val.SetInt(i)
-        }
-    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-        u, e := strconv.ParseUint(pa, 10, 64)
-        if e != nil {
-            err = e.Error()
-        } else {
-            oa.val.SetUint(u)
-        }
-         //return v.Uint() == 0
-    case reflect.Float32, reflect.Float64:
-        f, e := strconv.ParseFloat(pa, 64)
-        if e != nil {
-            err = e.Error()
-        } else {
-            oa.val.SetFloat(f)
-        }
-         //return v.Float() == 0.0
-    //case reflect.Complex64, reflect.Complex128:
-    //    return v.Complex() 
-    case reflect.String:
-        oa.val.SetString(pa)
-    case reflect.Slice:
-        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
-        //return v.Len() == 0
-    default:
-        panic("Not support type " + oa.val.Kind().String())
+    if oa.val.Kind() == reflect.Slice {
+        /*
+        a := make([]string, 0, 2)
+        v := reflect.ValueOf(&a).Elem()
+        t := reflect.TypeOf(a)
+        e := t.Elem()
+        n := reflect.New(e).Elem()
+        n.SetString("abc")
+        v.Set(reflect.Append(v, n))
+        fmt.Println(a, n)
+        */
+        v := reflect.New(oa.val.Type().Elem()).Elem()
+        err = setValue(&v, pa)
+        if err != "" { return }
+        oa.val.Set(reflect.Append(oa.val, v))
+    } else {
+        err = setValue(&oa.val, pa)
     }
     return
 }
