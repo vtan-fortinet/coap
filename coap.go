@@ -8,6 +8,7 @@ import (
     "bytes"
     "unicode"
     "strings"
+    "strconv"
     "reflect"
     "encoding/json"
 )
@@ -255,6 +256,59 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // err: error message
     if ("-" + oa.Short) != *opt || ("--" + oa.Long) != *opt { return }
     got = 1
+    if oa.val.Kind() == reflect.Bool {
+        oa.val.SetBool(true)
+        //fv.SetString("MyName")
+        return
+    }
+    var pa string
+    if arg != nil {
+        pa = *arg
+    } else if oa.HasDft {
+        pa = oa.StrDft
+    } else {
+        if oa.Short != "" {
+            err = "option -" + oa.Short + " need parameter"
+        } else {
+            err = "option --" + oa.Long + " need parameter"
+        }
+        return
+    }
+    got = 2
+    switch oa.val.Kind() {
+    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+        i, e := strconv.ParseInt(pa, 10, 64)
+        if e != nil {
+            err = e.Error()
+        } else {
+            oa.val.SetInt(i)
+        }
+    case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+        u, e := strconv.ParseUint(pa, 10, 64)
+        if e != nil {
+            err = e.Error()
+        } else {
+            oa.val.SetUint(u)
+        }
+         //return v.Uint() == 0
+    case reflect.Float32, reflect.Float64:
+        f, e := strconv.ParseFloat(pa, 64)
+        if e != nil {
+            err = e.Error()
+        } else {
+            oa.val.SetFloat(f)
+        }
+         //return v.Float() == 0.0
+    //case reflect.Complex64, reflect.Complex128:
+    //    return v.Complex() 
+    case reflect.String:
+        oa.val.SetString(pa)
+    case reflect.Slice:
+        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
+        //return v.Len() == 0
+    default:
+        panic("Not support type " + oa.val.Kind().String())
+    }
     return
 }
 
