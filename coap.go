@@ -291,7 +291,8 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // got = 1 : took opt, but not arg
     // got = 2 : took opt and arg
     // err: error message
-    if ("-" + oa.Short) != *opt && ("--" + oa.Long) != *opt {
+    eqp := strings.HasPrefix(*opt, "--" + oa.Long + "=")
+    if ("-" + oa.Short) != *opt && ("--" + oa.Long) != *opt  && ! eqp {
         //fmt.Printf("s=[%s], l=[%s], o=[%s]\n",
         //           ("-" + oa.Short), ("--" + oa.Long), *opt)
         return
@@ -302,7 +303,9 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     //    return
     //}
     var pa string
-    if arg != nil {
+    if eqp {
+        pa = (*opt)[len(oa.Long) + 3:]
+    } else if arg != nil {
         pa = *arg
     } else if oa.HasDft {
         pa = oa.StrDft
@@ -337,6 +340,7 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     }
     if err == "" && got > 0 {
         oa.Got = true
+        if eqp { got = 1 }
     }
     //fmt.Printf("got=%d, err=[%s]", got, err)
     return
@@ -410,6 +414,9 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
 func Parse(i interface{}) []string {
     msg, ps := ParseArg(i, os.Args[1:])
     if msg != "" {
+        if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
+            msg = ""
+        }
         HelpMsg(i, msg)
         os.Exit(1)
     }

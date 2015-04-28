@@ -15,7 +15,7 @@ type myArg struct {
 
 
 func main() {
-    fmt.Println("demo1")
+    //fmt.Println("demo1")
     m := myArg{}
     //m.Parse()
     //m.Help()

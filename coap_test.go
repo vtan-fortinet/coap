@@ -397,3 +397,32 @@ func TestSetValuefs(tst *testing.T) {
         tst.Error("failed to setValueb", got, b)
     }
 }
+
+
+func rp(tst *testing.T, msg string) {
+    r := recover()
+    if msg != r {
+        tst.Errorf("failed to get panic [%s], got [%s]\n", msg, r)
+    }
+}
+func TestRp(tst *testing.T) {
+    defer rp(tst, "I am panic")
+    panic("I am panic")
+}
+
+
+func rp2(msg *string) {
+    *msg = recover().(string)
+}
+func TestRp2(tst *testing.T) {
+    var msg string
+    func() {
+    //defer func(m *string) { *m = recover().(string) }(&msg)
+    defer rp2(&msg)
+    panic("I am panic")
+    }()
+    if msg != "I am panic" {
+        tst.Error("failed to get panic", msg)
+    }
+}
+
