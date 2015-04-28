@@ -291,7 +291,11 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // got = 1 : took opt, but not arg
     // got = 2 : took opt and arg
     // err: error message
-    if ("-" + oa.Short) != *opt || ("--" + oa.Long) != *opt { return }
+    if ("-" + oa.Short) != *opt && ("--" + oa.Long) != *opt {
+        //fmt.Printf("s=[%s], l=[%s], o=[%s]\n",
+        //           ("-" + oa.Short), ("--" + oa.Long), *opt)
+        return
+    }
     //if oa.val.Kind() == reflect.Bool {
     //    oa.val.SetBool(true)
     //    //fv.SetString("MyName")
@@ -323,11 +327,18 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         */
         v := reflect.New(oa.val.Type().Elem()).Elem()
         got, err = setValue(&v, pa)
-        if err != "" { return }
+        if err != "" {
+            //fmt.Printf("setValue return err=[%s]", err)
+            return
+        }
         oa.val.Set(reflect.Append(oa.val, v))
     } else {
         got, err = setValue(&oa.val, pa)
     }
+    if err == "" && got > 0 {
+        oa.Got = true
+    }
+    //fmt.Printf("got=%d, err=[%s]", got, err)
     return
 }
 
@@ -382,12 +393,15 @@ func main() {
 
 
 func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
+    //fmt.Printf("opt=[%s], arg=[%s]\n", *opt, *arg)
     for _, oa := range oas {
         got, err = oa.parse(opt, arg)
-        if got != 0 || err != "" { return }
+        if got != 0 || err != "" {
+            return
+        }
     }
     if got == 0 {
-        err = "Don't know option: " + *opt
+        err = "Don't know option: " + *opt + err
     }
     return
 }
