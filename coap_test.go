@@ -118,14 +118,14 @@ func TestInitDefault(tst *testing.T) {
     i = 10
     oa = oaItem{}
     oa.initDefault(reflect.ValueOf(i), "")
-    if ! oa.HasDft || oa.MsgDft != "" || oa.StrDft != "" {
+    if ! oa.HasDft || oa.MsgDft != "" || oa.StrDft != "10" {
         tst.Error("failed to parse default5", oa)
     }
 
     i = 10
     oa = oaItem{}
     oa.initDefault(reflect.ValueOf(i), "|TEN")
-    if ! oa.HasDft || oa.MsgDft != "TEN" || oa.StrDft != "" {
+    if ! oa.HasDft || oa.MsgDft != "TEN" || oa.StrDft != "10" {
         tst.Error("failed to parse default6", oa)
     }
 }
@@ -299,32 +299,32 @@ func TestSetValuei(tst *testing.T) {
     var i64 int64
 
     v := reflect.ValueOf(&i).Elem()
-    err := setValue(&v, "-12")
-    if err != "" || i != -12 {
+    got, err := setValue(&v, "-12")
+    if err != "" || i != -12 || got != 2 {
         tst.Error("failed to setValuei")
     }
 
     v = reflect.ValueOf(&i8).Elem()
-    err = setValue(&v, "-123")
-    if err != "" || i8 != -123 {
+    got, err = setValue(&v, "-123")
+    if err != "" || i8 != -123 || got != 2 {
         tst.Error("failed to setValuei8")
     }
 
     v = reflect.ValueOf(&i16).Elem()
-    err = setValue(&v, "-12345")
-    if err != "" || i16 != -12345 {
+    got, err = setValue(&v, "-12345")
+    if err != "" || i16 != -12345 || got != 2 {
         tst.Error("failed to setValuei16")
     }
 
     v = reflect.ValueOf(&i32).Elem()
-    err = setValue(&v, "-1234578")
-    if err != "" || i32 != -1234578 {
+    got, err = setValue(&v, "-1234578")
+    if got != 2 || err != "" || i32 != -1234578 {
         tst.Error("failed to setValuei32")
     }
 
     v = reflect.ValueOf(&i64).Elem()
-    err = setValue(&v, "-123457890")
-    if err != "" || i64 != -123457890 {
+    got, err = setValue(&v, "-123457890")
+    if got != 2 || err != "" || i64 != -123457890 {
         tst.Error("failed to setValuei64")
     }
 }
@@ -333,36 +333,36 @@ func TestSetValuei(tst *testing.T) {
 func TestSetValueu(tst *testing.T) {
     var u uint
     v := reflect.ValueOf(&u).Elem()
-    err := setValue(&v, "12")
-    if err != "" || u != 12 {
+    got, err := setValue(&v, "12")
+    if got != 2 || err != "" || u != 12 {
         tst.Error("failed to setValueu")
     }
 
     var u8 uint8
     v = reflect.ValueOf(&u8).Elem()
-    err = setValue(&v, "123")
-    if err != "" || u8 != 123 {
+    got, err = setValue(&v, "123")
+    if got != 2 || err != "" || u8 != 123 {
         tst.Error("failed to setValueu8")
     }
 
     var u16 uint16
     v = reflect.ValueOf(&u16).Elem()
-    err = setValue(&v, "12345")
-    if err != "" || u16 != 12345 {
+    got, err = setValue(&v, "12345")
+    if got != 2 || err != "" || u16 != 12345 {
         tst.Error("failed to setValueu16")
     }
 
     var u32 uint32
     v = reflect.ValueOf(&u32).Elem()
-    err = setValue(&v, "1234578")
-    if err != "" || u32 != 1234578 {
+    got, err = setValue(&v, "1234578")
+    if got != 2 || err != "" || u32 != 1234578 {
         tst.Error("failed to setValueu32")
     }
 
     var u64 uint64
     v = reflect.ValueOf(&u64).Elem()
-    err = setValue(&v, "123457890")
-    if err != "" || u64 != 123457890 {
+    got, err = setValue(&v, "123457890")
+    if got != 2 || err != "" || u64 != 123457890 {
         tst.Error("failed to setValueu64")
     }
 }
@@ -371,22 +371,29 @@ func TestSetValueu(tst *testing.T) {
 func TestSetValuefs(tst *testing.T) {
     var f32 float32
     v := reflect.ValueOf(&f32).Elem()
-    err := setValue(&v, "-12.34")
-    if err != "" || f32 != -12.34 {
+    got, err := setValue(&v, "-12.34")
+    if got != 2 || err != "" || f32 != -12.34 {
         tst.Error("failed to setValuef32")
     }
 
     var f64 float64
     v = reflect.ValueOf(&f64).Elem()
-    err = setValue(&v, "123456.789")
-    if err != "" || f64 != 123456.789 {
+    got, err = setValue(&v, "123456.789")
+    if got != 2 || err != "" || f64 != 123456.789 {
         tst.Error("failed to setValuef64")
     }
 
     var s string
     v = reflect.ValueOf(&s).Elem()
-    err = setValue(&v, "abc123456.789")
-    if err != "" || s != "abc123456.789" {
+    got, err = setValue(&v, "abc123456.789")
+    if got != 2 || err != "" || s != "abc123456.789" {
         tst.Error("failed to setValues")
+    }
+
+    var b bool
+    v = reflect.ValueOf(&b).Elem()
+    got, err = setValue(&v, "true")
+    if got != 1 || err != "" || ! b {
+        tst.Error("failed to setValueb", got, b)
     }
 }

@@ -75,7 +75,9 @@ func (oa *oaItem)splitOpt(line string) (ret []string) {
 
 func isZero(v reflect.Value) (b bool) {
     switch v.Kind() {
-    // case reflect.Bool:
+    case reflect.Bool:
+         //return v.Bool() == false
+        return false
     case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
          return v.Int() == 0
     case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -103,6 +105,7 @@ func (oa *oaItem)initDefault(val reflect.Value, dat string) {
         //fmt.Printf("StrDft=[%s]\n", oa.StrDft)
     } else if ! isZero(val) {
         oa.HasDft = true
+        oa.StrDft = fmt.Sprintf("%v", val.Interface())
     }
 }
 
@@ -248,20 +251,24 @@ type COAP struct {
 }
 
 
-func setValue(val *reflect.Value, dat string) (err string) {
+func setValue(val *reflect.Value, dat string) (got int, err string) {
+    got = 2
     switch val.Kind() {
+    case reflect.Bool:
+        got = 1
+        val.SetBool(true)
     case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
         i, e := strconv.ParseInt(dat, 10, 64)
-        if e != nil { return e.Error() }
+        if e != nil { return 0, e.Error() }
         val.SetInt(i)
     case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
         u, e := strconv.ParseUint(dat, 10, 64)
-        if e != nil { return e.Error() }
+        if e != nil { return 0, e.Error() }
         val.SetUint(u)
         //return v.Uint() == 0
     case reflect.Float32, reflect.Float64:
         f, e := strconv.ParseFloat(dat, 64)
-        if e != nil { return e.Error() }
+        if e != nil { return 0, e.Error() }
         val.SetFloat(f)
         //return v.Float() == 0.0
     //case reflect.Complex64, reflect.Complex128:
@@ -272,7 +279,7 @@ func setValue(val *reflect.Value, dat string) (err string) {
         //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
         //return v.Len() == 0
     default:
-        return "Not support type " + val.Kind().String()
+        return 0, "Not support type " + val.Kind().String()
     }
     return
 }
@@ -285,12 +292,11 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // got = 2 : took opt and arg
     // err: error message
     if ("-" + oa.Short) != *opt || ("--" + oa.Long) != *opt { return }
-    got = 1
-    if oa.val.Kind() == reflect.Bool {
-        oa.val.SetBool(true)
-        //fv.SetString("MyName")
-        return
-    }
+    //if oa.val.Kind() == reflect.Bool {
+    //    oa.val.SetBool(true)
+    //    //fv.SetString("MyName")
+    //    return
+    //}
     var pa string
     if arg != nil {
         pa = *arg
@@ -304,7 +310,6 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         }
         return
     }
-    got = 2
     if oa.val.Kind() == reflect.Slice {
         /*
         a := make([]string, 0, 2)
@@ -317,11 +322,11 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         fmt.Println(a, n)
         */
         v := reflect.New(oa.val.Type().Elem()).Elem()
-        err = setValue(&v, pa)
+        got, err = setValue(&v, pa)
         if err != "" { return }
         oa.val.Set(reflect.Append(oa.val, v))
     } else {
-        err = setValue(&oa.val, pa)
+        got, err = setValue(&oa.val, pa)
     }
     return
 }
