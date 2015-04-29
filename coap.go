@@ -444,12 +444,15 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
         case strings.HasPrefix(args[idx], "-"):
             o, a := get_next(idx, args)
             opts := *o
+            //println("opts1=", opts)
             for i := 1; i < len(opts) - 1; i++ {
                 x := "-" + opts[i:i+1]
+                //println("x=", x, "i=", i)
                 got, msg = oasParse(oi.oas, &x, nil)
                 if msg != "" { return }
             }
             opts = opts[:1] + opts[len(opts) - 1:]
+            //println("opts2=", opts)
             got, msg = oasParse(oi.oas, &opts, a)
             if msg != "" { return }
             if got > 1 { idx = idx + 1 }

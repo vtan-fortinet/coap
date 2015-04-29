@@ -426,3 +426,140 @@ func TestRp2(tst *testing.T) {
     }
 }
 
+
+func TestParseArg1(tst *testing.T) {
+    type A1 struct {
+        B bool  `-b --bool |BOOL
+                !test for bool1`
+        V bool  `-v --verbose |VERBOSE
+                test for bool2`
+    }
+
+    a1 := A1{}
+    msg, args := ParseArg(&a1, []string{"-b"})
+    if ! a1.B || a1.V || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-v"})
+    if a1.B || ! a1.V || msg != "Missed option -b" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-bv"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-bv", "aa", "bb"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 2 || args[0] != "aa" || args[1] != "bb" {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-b", "-v"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-b", "-v", "11", "22"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 2 || args[0] != "11" || args[1] != "22" {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-bo", "-v", "11", "22"})
+    if ! a1.B || a1.V || msg != "Don't know option: -o" {
+        tst.Errorf("failed testParseArg 3 %v, [%s]", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"--bool", "-v", "11", "22"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 2 || args[0] != "11" || args[1] != "22" {
+        tst.Error("failed testParseArg 4", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-b", "--verbose", "11", "22"})
+    if ! a1.B || ! a1.V || msg != "" {
+        tst.Error("failed testParseArg 3", a1, msg)
+    }
+    if len(args) != 2 || args[0] != "11" || args[1] != "22" {
+        tst.Error("failed testParseArg 4", args)
+    }
+}
+
+
+func TestParseArg2(tst *testing.T) {
+    type A1 struct {
+        I int  `-i --int |INT
+                !test for int1`
+        U uint `-u --uint |UINT
+                test for uint2`
+    }
+
+    a1 := A1{I:12}
+    msg, args := ParseArg(&a1, []string{"-i"})
+    if a1.I != 12 || a1.U != 0 || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i"})
+    if a1.I != 0 || a1.U != 0 || msg != "option -i need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-u"})
+    if a1.I != 0 || a1.U != 0 || msg != "option -u need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-u", "32"})
+    if a1.I != 0 || a1.U != 32 || msg != "Missed option -i" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+}
+
