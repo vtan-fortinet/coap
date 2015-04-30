@@ -34,6 +34,7 @@ type oaItem struct {    // option, argument item
 type oaInfo struct {
     oam map[string]*oaItem
     oas []*oaItem
+    sp  int     // length of help leading space
 }
 
 
@@ -161,8 +162,6 @@ func (oa *oaItem)initHelp(line string) {
 func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
     oa.rsf = rsf
     oa.val = val
-    //tagLines := strings.Split(rsf.Tag, "\n")
-    //fmt.Println("tags =", tagLines)
     isGrp := false
     soa := oa
     for _, l := range strings.Split(string(rsf.Tag), "\n") {
@@ -239,19 +238,6 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
         fmt.Fprintf(w, "%s\n", l)
     }
 }
-
-
-/*
-type GRP struct {       // group
-    sel     string
-    val     string
-}
-
-
-type COAP struct {
-    items   []oaItem
-}
-*/
 
 
 func setValue(val *reflect.Value, dat string) (got int, err string) {
@@ -383,30 +369,29 @@ func initial(i interface{}) *oaInfo {
     if ok {     // already init, just return it
         return info
     }
-    info = &oaInfo{oas: make([]*oaItem, 0, 5)}
+    info = &oaInfo{oas: make([]*oaItem, 0, 5), oam: make(map[string]*oaItem, 5)}
     ii := reflect.Indirect(v)
     st := ii.Type()
     for idx := 0; idx < st.NumField(); idx++ {
         fs := st.Field(idx)
         fv := ii.Field(idx)
-        //fmt.Println("fv =", fv, reflect.TypeOf(fv))
-        //fv.SetString("MyName")
         it := &oaItem{}
         it.init(fs, fv)
         info.oas = append(info.oas, it)
+        c := 0
+        if len(it.Short) > 0 {
+            info.oam["-" + it.Short] = it
+            c = c + 2                   // for len("-S")
+        }
+        if len(it.Long) > 0 {
+            info.oam["--" + it.Long] = it
+            c = c + len(it.Long) + 2
+            if it.Short != "" { c = c + 2 }   // for len(", ")
+        }
+        if c > info.sp { info.sp = c }
     }
     return info
 }
-
-/*
-func main() {
-    a := make([]byte, 0)
-    t := reflect.TypeOf(a)
-    v := reflect.ValueOf(a)
-    fmt.Println(a, v, t.Kind())
-    fmt.Println(t.Elem().Kind() == reflect.Uint8)
-}
-*/
 
 
 func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
