@@ -32,6 +32,7 @@ type oaItem struct {    // option, argument item
 
 
 type oaInfo struct {
+    oam map[string]*oaItem
     oas []*oaItem
 }
 
@@ -240,6 +241,7 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
 }
 
 
+/*
 type GRP struct {       // group
     sel     string
     val     string
@@ -249,6 +251,7 @@ type GRP struct {       // group
 type COAP struct {
     items   []oaItem
 }
+*/
 
 
 func setValue(val *reflect.Value, dat string) (got int, err string) {
@@ -297,24 +300,34 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         //           ("-" + oa.Short), ("--" + oa.Long), *opt)
         return
     }
+    //var e string
+    //switch oa.val.Kind() {
+    //case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+    //    _, e = strconv.ParseInt(dat, 10, 64)
+    //case reflect.Float32, reflect.Float64:
+    //    f, e := strconv.ParseFloat(dat, 64)
+    //}
     //if oa.val.Kind() == reflect.Bool {
     //    oa.val.SetBool(true)
     //    //fv.SetString("MyName")
     //    return
     //}
-    var pa string
+    var op, pa string
+    op = *opt
     if eqp {
+        op = (*opt)[:len(oa.Long) + 2]
         pa = (*opt)[len(oa.Long) + 3:]
     } else if arg != nil {
         pa = *arg
     } else if oa.HasDft {
         pa = oa.StrDft
     } else {
-        if oa.Short != "" {
-            err = "option -" + oa.Short + " need parameter"
-        } else {
-            err = "option --" + oa.Long + " need parameter"
-        }
+        //if oa.Short != "" {
+        //    err = "option -" + oa.Short + " need parameter"
+        //} else {
+        //    err = "option --" + oa.Long + " need parameter"
+        //}
+        err = "option " + op + " need parameter"
         return
     }
     if oa.val.Kind() == reflect.Slice {
@@ -425,7 +438,7 @@ func Parse(i interface{}) []string {
 
 func get_next(idx int, args []string) (o, a *string) {
     o = &(args[idx])
-    if idx < (len(args) - 1) && ! strings.HasPrefix(args[idx + 1], "-") {
+    if idx < (len(args) - 1) && (! strings.HasPrefix(args[idx + 1], "-") || args[idx + 1] == "-") {
          a = &(args[idx + 1])
     }
     return
@@ -436,6 +449,9 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
     ps = make([]string, 0, 5)
     for idx := 0; idx < len(args); idx++ {
         switch {
+        case args[idx] == "--":
+            ps = append(ps, args[idx:]...)
+            break
         case strings.HasPrefix(args[idx], "--"):
             o, a := get_next(idx, args)
             got, msg = oasParse(oi.oas, o, a)
