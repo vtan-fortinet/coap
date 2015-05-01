@@ -1,6 +1,7 @@
 package coap
 
 import (
+    "fmt"
     "testing"
     "reflect"
 )
@@ -288,6 +289,19 @@ func TestGet_next(tst *testing.T) {
     if *o != "-b" || *a != "c" {
         tst.Error("failed to get_next4", o, a)
     }
+}
+
+
+func TestParseComplex(tst *testing.T) {
+    t := func (tst *testing.T, x string) {
+        c, e := parseComplex(x)
+        s := fmt.Sprintf("%v", c)
+        if s != x || e != "" {
+            tst.Error("failed to TestParseComplex", c, e)
+        }
+    }
+    t(tst, "(1.2+3.4i)")
+    t(tst, "(1.2-3.4i)")
 }
 
 
@@ -613,6 +627,15 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 1", a1, msg)
     }
     if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{I: -12}
+    msg, args = ParseArg(&a1, []string{"-i", "-"})
+    if a1.I != -12 || a1.U != 0 || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 1 || args[0] != "-" {
         tst.Error("failed testParseArg 2", args)
     }
 }

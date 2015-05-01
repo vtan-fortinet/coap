@@ -86,8 +86,8 @@ func isZero(v reflect.Value) (b bool) {
          return v.Uint() == 0
     case reflect.Float32, reflect.Float64:
          return v.Float() == 0.0
-    //case reflect.Complex64, reflect.Complex128:
-    //    return v.Complex() 
+    case reflect.Complex64, reflect.Complex128:
+         return v.Complex() == reflect.Zero(v.Type()).Complex()
     case reflect.Slice, reflect.String:
         //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
         return v.Len() == 0
@@ -266,6 +266,21 @@ func canUse(val *reflect.Value, org *string) bool {
 }
 
 
+func parseComplex(dat string) (c complex128, err string) {
+    err = "Worng Complex format, should like (1.2+3.4i)"
+    i := strings.IndexAny(dat, "+-")
+    if i < 1 { return }
+    r := strings.TrimSpace(dat[:i])
+    x := strings.TrimSpace(dat[i:])
+    if ! strings.HasPrefix(r, "(") || ! strings.HasSuffix(x, "i)") { return }
+    R, e1 := strconv.ParseFloat(r[1:], 64)
+    if e1 != nil { return c, e1.Error() }
+    X, e2 := strconv.ParseFloat(x[:len(x) - 2], 64)
+    if e2 != nil { return c, e2.Error() }
+    return complex(R, X), ""
+}
+
+
 func setValue(val *reflect.Value, dat string) (got int, err string) {
     got = 2
     switch val.Kind() {
@@ -280,19 +295,22 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
         u, e := strconv.ParseUint(dat, 10, 64)
         if e != nil { return 0, e.Error() }
         val.SetUint(u)
-        //return v.Uint() == 0
     case reflect.Float32, reflect.Float64:
         f, e := strconv.ParseFloat(dat, 64)
         if e != nil { return 0, e.Error() }
         val.SetFloat(f)
-        //return v.Float() == 0.0
-    //case reflect.Complex64, reflect.Complex128:
-    //    return v.Complex() 
+    case reflect.Complex64, reflect.Complex128:
+        // dat should format like (1.2+3.4i)
+        c, e := parseComplex(dat)
+        if e != "" { return 0, e }
+        val.SetComplex(c)
     case reflect.String:
+        if len(dat) > 0 && dat[0] == dat[len(dat) - 1] {
+            if dat[0] == '"' || dat[0] == '\'' {
+                dat = dat[1:len(dat) - 1]
+            }
+        }
         val.SetString(dat)
-    //case reflect.Slice:
-        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
-        //return v.Len() == 0
     default:
         return 0, "Not support type " + val.Kind().String()
     }
@@ -471,7 +489,7 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             got, msg = oasParse(oi.oas, o, a)
             if msg != "" { return }
             if got > 1 { idx = idx + 1 }
-        case strings.HasPrefix(args[idx], "-"):
+        case strings.HasPrefix(args[idx], "-") && args[idx] != "-":
             o, a := get_next(idx, args)
             opts := *o
             //println("opts1=", opts)
