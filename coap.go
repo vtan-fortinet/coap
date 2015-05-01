@@ -240,6 +240,30 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
 }
 
 
+func canUse(val *reflect.Value, org *string) bool {
+    if org == nil || *org == "--" || strings.HasPrefix(*org, "--") {
+        return false
+    }
+    if ! strings.HasPrefix(*org, "-") || *org == "-" {
+        return true
+    }
+    k := val.Kind()
+    if k == reflect.Slice {
+        k = val.Type().Elem().Kind()
+    }
+
+    switch k {
+    case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+        _, e := strconv.ParseInt(*org, 10, 64)
+        return e == nil
+    case reflect.Float32, reflect.Float64:
+        _, e := strconv.ParseFloat(*org, 64)
+        return e == nil
+    }
+    return false
+}
+
+
 func setValue(val *reflect.Value, dat string) (got int, err string) {
     got = 2
     switch val.Kind() {
@@ -299,11 +323,13 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     //    return
     //}
     var op, pa string
+    var cu bool
     op = *opt
     if eqp {
         op = (*opt)[:len(oa.Long) + 2]
         pa = (*opt)[len(oa.Long) + 3:]
-    } else if arg != nil {
+    //} else if arg != nil {
+    } else if cu = canUse(&oa.val, arg); cu {
         pa = *arg
     } else if oa.HasDft {
         pa = oa.StrDft
@@ -339,7 +365,7 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     }
     if err == "" && got > 0 {
         oa.Got = true
-        if eqp { got = 1 }
+        if eqp || ! cu { got = 1 }
     }
     //fmt.Printf("got=%d, err=[%s]", got, err)
     return
