@@ -244,7 +244,7 @@ func canUse(val *reflect.Value, org *string) bool {
     if org == nil || *org == "--" || strings.HasPrefix(*org, "--") {
         return false
     }
-    if ! strings.HasPrefix(*org, "-") || *org == "-" {
+    if ! strings.HasPrefix(*org, "-") { //|| *org == "-" {
         return true
     }
     k := val.Kind()
@@ -259,6 +259,8 @@ func canUse(val *reflect.Value, org *string) bool {
     case reflect.Float32, reflect.Float64:
         _, e := strconv.ParseFloat(*org, 64)
         return e == nil
+    case reflect.String:
+        return *org == "-"
     }
     return false
 }

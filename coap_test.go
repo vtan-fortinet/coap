@@ -588,5 +588,62 @@ func TestParseArg2(tst *testing.T) {
     if len(args) != 0 {
         tst.Error("failed testParseArg 2", args)
     }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i", "-12"})
+    if a1.I != -12 || a1.U != 0 || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{I: -12}
+    msg, args = ParseArg(&a1, []string{"-u", "-34"})
+    if a1.I != -12 || a1.U != 0 || msg != "option -u need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i", "-"})
+    if a1.I != 0 || a1.U != 0 || msg != "option -i need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
 }
 
+
+func TestParseArg3(tst *testing.T) {
+    type A1 struct {
+        Is []int    `-i --int 
+                    !test for int1`
+        Ss []string `-s --string
+                    test for string2`
+    }
+
+    a1 := A1{}
+    msg, args := ParseArg(&a1, []string{"-i", "12"})
+    if len(a1.Is) != 1 || a1.Is[0] != 12 || len(a1.Ss) != 0 || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{Is:[]int{12}}
+    msg, args = ParseArg(&a1, []string{"-i", "-34", "-s", "-"})
+    if a1.Is[0] != 12 || a1.Ss[0] != "-" || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+
+    //a1 = A1{I:12}
+    //msg, args = ParseArg(&a1, []string{"-i", "-s", "-2"})
+    //if a1.I != 12 || a1.S != "-" || msg != "option -s need parameter" {
+    //    tst.Error("failed testParseArg 1", a1, msg)
+    //}
+}
