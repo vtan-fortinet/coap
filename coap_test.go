@@ -279,7 +279,7 @@ func TestGet_next(tst *testing.T) {
 
     args = []string{"-a", "-b"}
     o, a = get_next(0, args)
-    if *o != "-a" || a != nil {
+    if *o != "-a" || *a != "-b" {
         tst.Error("failed to get_next3", o, a)
     }
 

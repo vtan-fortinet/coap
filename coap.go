@@ -449,7 +449,8 @@ func Parse(i interface{}) []string {
 
 func get_next(idx int, args []string) (o, a *string) {
     o = &(args[idx])
-    if idx < (len(args) - 1) && (! strings.HasPrefix(args[idx + 1], "-") || args[idx + 1] == "-") {
+    //if idx < (len(args) - 1) && (! strings.HasPrefix(args[idx + 1], "-") || args[idx + 1] == "-") {
+    if idx < (len(args) - 1) {
          a = &(args[idx + 1])
     }
     return
