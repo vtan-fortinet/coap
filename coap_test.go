@@ -302,6 +302,8 @@ func TestParseComplex(tst *testing.T) {
     }
     t(tst, "(1.2+3.4i)")
     t(tst, "(1.2-3.4i)")
+    t(tst, "(-1.2+3.4i)")
+    t(tst, "(-1.2-3.4i)")
 }
 
 

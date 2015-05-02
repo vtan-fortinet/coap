@@ -268,7 +268,7 @@ func canUse(val *reflect.Value, org *string) bool {
 
 func parseComplex(dat string) (c complex128, err string) {
     err = "Worng Complex format, should like (1.2+3.4i)"
-    i := strings.IndexAny(dat, "+-")
+    i := strings.LastIndexAny(dat, "+-")
     if i < 1 { return }
     r := strings.TrimSpace(dat[:i])
     x := strings.TrimSpace(dat[i:])
