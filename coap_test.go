@@ -662,13 +662,22 @@ func TestParseArg3(tst *testing.T) {
 
     a1 = A1{Is:[]int{12}}
     msg, args = ParseArg(&a1, []string{"-i", "-34", "-s", "-"})
-    if a1.Is[0] != 12 || a1.Ss[0] != "-" || msg != "" {
+    if a1.Is[0] != -34 || a1.Ss[0] != "-" || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
-    //a1 = A1{I:12}
-    //msg, args = ParseArg(&a1, []string{"-i", "-s", "-2"})
-    //if a1.I != 12 || a1.S != "-" || msg != "option -s need parameter" {
-    //    tst.Error("failed testParseArg 1", a1, msg)
-    //}
+    a1 = A1{Is:[]int{12}}
+    msg, args = ParseArg(&a1, []string{"-i", "-s", "-2"})
+    if a1.Is[0] != 12 || len(a1.Ss) != 0 || msg != "option -s need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(a1.Is) != 1 {
+        tst.Error("failed testParseArg 1", a1)
+    }
+
+    a1 = A1{Is:[]int{12}}
+    msg, args = ParseArg(&a1, []string{"-i", "-i", "-2"})
+    if len(a1.Is) != 2 || a1.Is[0] != 12 || a1.Is[1] != -2 {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
 }

@@ -107,7 +107,11 @@ func (oa *oaItem)initDefault(val reflect.Value, dat string) {
         //fmt.Printf("StrDft=[%s]\n", oa.StrDft)
     } else if ! isZero(val) {
         oa.HasDft = true
-        oa.StrDft = fmt.Sprintf("%v", val.Interface())
+        if val.Kind() == reflect.Slice {
+            oa.StrDft = fmt.Sprintf("%v", val.Index(0).Interface())
+        } else {
+            oa.StrDft = fmt.Sprintf("%v", val.Interface())
+        }
     }
 }
 
@@ -354,11 +358,6 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     } else if oa.HasDft {
         pa = oa.StrDft
     } else {
-        //if oa.Short != "" {
-        //    err = "option -" + oa.Short + " need parameter"
-        //} else {
-        //    err = "option --" + oa.Long + " need parameter"
-        //}
         err = "option " + op + " need parameter"
         return
     }
@@ -379,7 +378,14 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
             //fmt.Printf("setValue return err=[%s]", err)
             return
         }
-        oa.val.Set(reflect.Append(oa.val, v))
+        if oa.Got {
+            // this is not the first one, just append
+            oa.val.Set(reflect.Append(oa.val, v))
+        } else {
+            // this is the first one, we don't want to keep
+            // pre-assigned when init
+            oa.val.Set(reflect.Append(reflect.New(oa.val.Type()).Elem(), v))
+        }
     } else {
         got, err = setValue(&oa.val, pa)
     }
