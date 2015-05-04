@@ -5,7 +5,7 @@ Command line Option and Argument Parser
 
 type Grp struct {
     sel string  // first must be string
-    val int     // value is whatever can conver from []byte
+    val int     // type is whatever can be converted from string
 }
 
 type Arg struct {
