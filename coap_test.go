@@ -681,3 +681,42 @@ func TestParseArg3(tst *testing.T) {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 }
+
+
+func TestParseArg4(tst *testing.T) {
+    type A1 struct {
+        I int    `-i --int 
+                    [1, 2, 3]
+                    !test for int1`
+        S string `-s --string
+                    ["ab", "cd"]
+                    test for string2`
+    }
+
+    a1 := A1{}
+    msg, args := ParseArg(&a1, []string{"-i", "12"})
+    if a1.I != 0 || a1.S != "" || msg != "option -i should be one of [1, 2, 3]" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i", "2"})
+    if a1.I != 2 || a1.S != "" || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "xy"})
+    if a1.I != 2 || a1.S != "" || msg != `option -s should be one of ["ab", "cd"]` {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+
+    a1 = A1{}
+    msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "ab"})
+    if a1.I != 2 || a1.S != "ab" || msg != `` {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+}

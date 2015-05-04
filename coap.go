@@ -24,7 +24,8 @@ type oaItem struct {    // option, argument item
     StrDft  string      // str(default)
     Got     bool        // this item got from command line
     HelpLs  []string    // help message lines
-    Cans    []string    // candidates
+    Cans    string      // candidates string
+    Canm    map[string]int // map
     Grp     []*oaItem   // this is a group item if not nil
     val     reflect.Value
     rsf     reflect.StructField
@@ -141,9 +142,10 @@ func (oa *oaItem)initCans(line []byte) {
     vs := make([]interface{}, 0, 5)
     err := json.Unmarshal(line, &vs)
     if err != nil { panic("Failed to process candicates," + err.Error()) }
-    oa.Cans = make([]string, 0, 5)
+    oa.Cans = string(line)
+    oa.Canm = make(map[string]int, 5)
     for _, v := range vs {
-        oa.Cans = append(oa.Cans, fmt.Sprint(v))
+        oa.Canm[fmt.Sprint(v)] = 1
     }
 }
 
@@ -360,6 +362,13 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     } else {
         err = "option " + op + " need parameter"
         return
+    }
+    if oa.Canm != nil && len(oa.Canm) > 0 {
+        _, ok := oa.Canm[pa]
+        if ! ok {
+            err = "option " + op + " should be one of " + oa.Cans
+            return
+        }
     }
     if oa.val.Kind() == reflect.Slice {
         /*
