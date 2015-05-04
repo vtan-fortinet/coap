@@ -336,18 +336,7 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         //           ("-" + oa.Short), ("--" + oa.Long), *opt)
         return
     }
-    //var e string
-    //switch oa.val.Kind() {
-    //case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-    //    _, e = strconv.ParseInt(dat, 10, 64)
-    //case reflect.Float32, reflect.Float64:
-    //    f, e := strconv.ParseFloat(dat, 64)
-    //}
-    //if oa.val.Kind() == reflect.Bool {
-    //    oa.val.SetBool(true)
-    //    //fv.SetString("MyName")
-    //    return
-    //}
+
     var op, pa string
     var cu bool
     op = *opt
@@ -484,7 +473,6 @@ func Parse(i interface{}) []string {
 
 func get_next(idx int, args []string) (o, a *string) {
     o = &(args[idx])
-    //if idx < (len(args) - 1) && (! strings.HasPrefix(args[idx + 1], "-") || args[idx + 1] == "-") {
     if idx < (len(args) - 1) {
          a = &(args[idx + 1])
     }
