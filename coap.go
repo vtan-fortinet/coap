@@ -195,6 +195,17 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
             soa.initHelp(line)
         }
     }
+    if isGrp {
+        ss := make([]string, 0, 10)
+        for _, a := range oa.Grp {
+            if a.Short != "" {
+                ss = append(ss, "-" + a.Short)
+            } else if a.Long != "" {
+                ss = append(ss, "-" + a.Long)
+            }
+        }
+        oa.Long = strings.Join(ss, "|")
+    }
 }
 
 
@@ -324,6 +335,11 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 }
 
 
+func (oa *oaItem)setGrp(goa *oaItem) {
+    
+}
+
+
 func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     // parse option/argument
     // got = 0 : not match
@@ -447,9 +463,24 @@ func initial(i interface{}) *oaInfo {
 func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
     //fmt.Printf("opt=[%s], arg=[%s]\n", *opt, *arg)
     for _, oa := range oas {
-        got, err = oa.parse(opt, arg)
-        if got != 0 || err != "" {
-            return
+        if oa.Grp != nil {
+            for _, goa := range oa.Grp {
+                got, err = goa.parse(opt, arg)
+                if err != "" { return }
+                if got > 0 {
+                    if oa.Got {
+                        err = "option conflict"
+                        return
+                    }
+                    oa.Got = true
+                    oa.setGrp(goa)
+                }
+            }
+        } else {
+            got, err = oa.parse(opt, arg)
+            if got != 0 || err != "" {
+                return
+            }
         }
     }
     if got == 0 {
@@ -516,7 +547,11 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             if oa.Short != "" {
                 msg = "Missed option -" + oa.Short
             } else {
-                msg = "Missed option --" + oa.Long
+                if oa.Grp != nil {
+                    msg = "Missed option " + oa.Long
+                } else {
+                    msg = "Missed option --" + oa.Long
+                }
             }
         }
     }
