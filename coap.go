@@ -181,7 +181,8 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
             if len(ret) > 1 { oa.initDefault(val, ret[1]) }
         case strings.HasPrefix(line, "-"):      // short or long
             if isGrp {
-                soa = &oaItem{}
+                // save data as string here, assigned later in setGrp
+                soa = &oaItem{val:reflect.New(reflect.TypeOf("")).Elem()}
                 oa.Grp = append(oa.Grp, soa)
             }
             dft := soa.initOpts(line)
@@ -336,6 +337,7 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 
 
 func (oa *oaItem)setGrp(goa *oaItem) {
+    println("Short=", goa.Short, "val=", goa.val.String())
     
 }
 
@@ -465,13 +467,13 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
     for _, oa := range oas {
         if oa.Grp != nil {
             for _, goa := range oa.Grp {
-                got, err = goa.parse(opt, arg)
-                if err != "" { return }
-                if got > 0 {
-                    if oa.Got {
-                        err = "option conflict"
-                        return
-                    }
+                g, e := goa.parse(opt, arg)
+                if e != "" { return 0, e }
+                if g > 0 && oa.Got {
+                    return 0, "option conflict"
+                }
+                if g > 0 {
+                    got = g
                     oa.Got = true
                     oa.setGrp(goa)
                 }

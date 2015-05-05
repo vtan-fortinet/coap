@@ -744,4 +744,13 @@ func TestParseGrp1(tst *testing.T) {
     if len(args) != 1 || args[0] != "abcd.txt" {
         tst.Error("failed testParseArg 1", args)
     }
+
+    g = G1{}
+    msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
+    if msg != " " {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 1", args)
+    }
 }
