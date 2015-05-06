@@ -723,12 +723,12 @@ func TestParseArg4(tst *testing.T) {
 
 
 func TestParseGrp1(tst *testing.T) {
-    type Grp struct {
+    type grp struct {
         Sel string
         Val string
     }
-    type G1 struct {
-        S *Grp      `---FILENAME
+    type g1 struct {
+        S *grp      `---FILENAME
                     !compress/decompress file
                     -c --compress
                     compress file
@@ -736,7 +736,7 @@ func TestParseGrp1(tst *testing.T) {
                     decomrepss file`
     }
 
-    g := G1{}
+    g := g1{}
     msg, args := ParseArg(&g, []string{"abcd.txt"})
     if msg != "Missed option -c|-x" {
         tst.Error("failed testParseArg 1", g, msg)
@@ -745,7 +745,7 @@ func TestParseGrp1(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 
-    g = G1{}
+    g = g1{}
     msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
     if g.S.Sel != "c" || g.S.Val != "abcd.txt" || msg != "" {
         tst.Error("failed testParseArg 1", g, msg)
@@ -790,3 +790,38 @@ func TestParseGrp2(tst *testing.T) {
         tst.Error("failed testParseArg 1", g, msg)
     }
 }
+
+
+func TestParseGrp3(tst *testing.T) {
+    type grp struct {
+        Sel string
+        Val string
+    }
+    type g3 struct {
+        S *grp      `---FILENAME
+                    compress/decompress file
+                    -c --compress
+                    compress file
+                    -x --decompress
+                    decomrepss file`
+    }
+
+    g := g3{S: &grp{Sel: "c", Val:"1234.txt"}}
+    msg, args := ParseArg(&g, []string{"abcd.txt"})
+    if g.S.Sel != "c" || g.S.Val != "1234.txt" || msg != "" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 1 || args[0] != "abcd.txt" {
+        tst.Error("failed testParseArg 1", args)
+    }
+
+    g = g3{S: &grp{Sel: "c", Val:"1234.txt"}}
+    msg, args = ParseArg(&g, []string{"-x", "abcd.txt"})
+    if g.S.Sel != "x" || g.S.Val != "abcd.txt" || msg != "" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 1", args)
+    }
+}
+
