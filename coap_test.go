@@ -754,3 +754,39 @@ func TestParseGrp1(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 }
+
+
+func TestParseGrp2(tst *testing.T) {
+    type g2 struct {
+        S string   `---FILENAME
+                    !compress/decompress file
+                    -c --compress
+                    compress file
+                    -x --decompress
+                    decomrepss file`
+    }
+
+    g := g2{}
+    msg, args := ParseArg(&g, []string{"abcd.txt"})
+    if msg != "Missed option -c|-x" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 1 || args[0] != "abcd.txt" {
+        tst.Error("failed testParseArg 1", args)
+    }
+
+    g = g2{}
+    msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
+    if g.S != "c abcd.txt" || msg != "" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 1", args)
+    }
+
+    g = g2{}
+    msg, args = ParseArg(&g, []string{"--decompress", "abcd.txt"})
+    if g.S != "x abcd.txt" || msg != "" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+}
