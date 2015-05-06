@@ -724,8 +724,8 @@ func TestParseArg4(tst *testing.T) {
 
 func TestParseGrp1(tst *testing.T) {
     type Grp struct {
-        sel string
-        val string
+        Sel string
+        Val string
     }
     type G1 struct {
         S *Grp      `---FILENAME
@@ -747,7 +747,7 @@ func TestParseGrp1(tst *testing.T) {
 
     g = G1{}
     msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
-    if msg != " " {
+    if g.S.Sel != "c" || g.S.Val != "abcd.txt" || msg != "" {
         tst.Error("failed testParseArg 1", g, msg)
     }
     if len(args) != 0 {

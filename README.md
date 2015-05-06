@@ -4,8 +4,8 @@ Command line Option and Argument Parser
 ```go
 
 type Grp struct {
-    sel string  // first must be string
-    val int     // type is whatever can be converted from string
+    Sel string  // first must be string
+    Val int     // type is whatever can be converted from string
 }
 
 type Arg struct {

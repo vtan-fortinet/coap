@@ -68,6 +68,11 @@ func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
 }
 
 
+func (oa *oaItem)getVal() *reflect.Value {
+    return &oa.val
+}
+
+
 func (oa *oaItem)splitOpt(line string) (ret []string) {
     ret = splitSpaceF(line, func(r []string) bool {
                 return strings.HasPrefix(r[len(r) - 1], "--")
@@ -336,9 +341,38 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 }
 
 
-func (oa *oaItem)setGrp(goa *oaItem) {
-    println("Short=", goa.Short, "val=", goa.val.String())
-    
+func (oa *oaItem)setGrp(goa *oaItem) (err string) {
+    //println("Short=", goa.Short, "val=", goa.val.String())
+    switch k := oa.val.Kind(); k {
+    case reflect.String:
+        if len(goa.Short) > 0 {
+            oa.val.SetString(goa.Short + " " + goa.val.String())
+        } else {
+            oa.val.SetString(goa.Long + " " + goa.val.String())
+        }
+        return
+    case reflect.Ptr:
+        v := oa.val.Type().Elem()
+        if v.Kind() != reflect.Struct {
+            panic("Grp should be a ptr to struct " + v.Kind().String())
+        }
+        if v.NumField() != 2{
+            panic("Grp struct need two fields")
+        }
+        sel := v.Field(0)
+        if sel.Type.Kind() != reflect.String {
+            panic("Grp struct first field should be string: " +
+                   sel.Type.Kind().String())
+        }
+        val := reflect.New(v)
+        val.Elem().Field(0).SetString(goa.Short)
+        oa.val.Set(val)
+        v1 := val.Elem().Field(1)
+        _, err = setValue(&v1, goa.getVal().String())
+    default:
+        panic("Grp did not support type " + k.String())
+    }
+    return
 }
 
 
@@ -475,7 +509,8 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
                 if g > 0 {
                     got = g
                     oa.Got = true
-                    oa.setGrp(goa)
+                    err = oa.setGrp(goa)
+                    if err != "" { return }
                 }
             }
         } else {
