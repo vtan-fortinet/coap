@@ -1,28 +1,26 @@
 package main
 
 import (
-    "os"
+//    "os"
     "fmt"
     "coap"
 )
 
 
 type myArg struct {
-    //coap.COAP
     Uname string    `-nNAME --name
                     !what is your name`
+    Passwd string   `-pPASS --passwd
+                    user password`
 }
 
 
 func main() {
-    //fmt.Println("demo1")
-    m := myArg{}
-    //m.Parse()
-    //m.Help()
-    //coap.Help(&m)
-    coap.Parse(&m)
+    m := myArg{Passwd: "123456"}
+    args := coap.Parse(&m)
     //fmt.Println("uname =", m.Uname)
     //fmt.Println(os.Args)
-    fmt.Printf("-n = %s\n", m.Uname)
-    os.Exit(0)
+    //fmt.Fprint(os.Stderr, "err msg\n")
+    fmt.Printf("-n = %s, -p = '%s', args = %v\n", m.Uname, m.Passwd, args)
+    //os.Exit(1)
 }
