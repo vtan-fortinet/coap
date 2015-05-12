@@ -215,6 +215,15 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
 }
 
 
+func (oa *oaItem)helpShortOpt(w io.Writer) {
+    if oa.Short != "" {
+        fmt.Fprintf(w, "-%s", oa.Short)
+    } else if oa.Long != "" {
+        fmt.Fprintf(w, "--%s", oa.Long)
+    }
+}
+
+
 func (oa *oaItem)helpShort(w io.Writer) {
     if oa.Short == "" && oa.Long == "" && len(oa.Grp) == 0 {
         return
@@ -224,15 +233,11 @@ func (oa *oaItem)helpShort(w io.Writer) {
         s := ""
         for _, g := range oa.Grp {
             fmt.Fprintf(w, s)
-            g.helpShort(w)
+            g.helpShortOpt(w)
             s = "|"
         }
     } else {                // regular entry
-        if oa.Short != "" {
-            fmt.Fprintf(w, "-%s", oa.Short)
-        } else if oa.Long != "" {
-            fmt.Fprintf(w, "--%s", oa.Long)
-        }
+        oa.helpShortOpt(w)
     }
     if oa.Vname != "" {
         fmt.Fprintf(w, " ")

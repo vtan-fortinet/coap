@@ -12,6 +12,12 @@ type myArg struct {
                     !what is your name`
     Passwd string   `-pPASS --passwd
                     user password`
+    Act string      `---ACT
+                    !user action and arg
+                    -u --upload
+                    upload file with username/password
+                    -d --download
+                    download and save into file`
 }
 
 
