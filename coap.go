@@ -268,6 +268,14 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
 }
 
 
+func (oa *oaItem)helpLongGrp(w io.Writer, align int) {
+    fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
+    for _, g := range oa.Grp {
+        g.helpLong(w, align + 2)
+    }
+}
+
+
 func canUse(val *reflect.Value, org *string) bool {
     if org == nil || *org == "--" || strings.HasPrefix(*org, "--") {
         return false
@@ -623,7 +631,11 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
     }
     fmt.Fprint(w, "\n")
     for _, oa := range oi.oas {
-        oa.helpLong(w, a)
+        if len(oa.Grp) > 0 {    // group entry
+            oa.helpLongGrp(w, a)
+        } else {
+            oa.helpLong(w, a)
+        }
     }
     fmt.Fprint(w, "\n")
 }

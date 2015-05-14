@@ -27,6 +27,8 @@ func main() {
     //fmt.Println("uname =", m.Uname)
     //fmt.Println(os.Args)
     //fmt.Fprint(os.Stderr, "err msg\n")
-    fmt.Printf("-n = %s, -p = '%s', args = %v\n", m.Uname, m.Passwd, args)
+    fmt.Printf("-n = %s, -p = '%s'\n", m.Uname, m.Passwd)
+    fmt.Printf("act = %s\n", m.Act)
+    fmt.Printf("args = %v\n", args)
     //os.Exit(1)
 }
