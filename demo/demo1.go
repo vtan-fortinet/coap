@@ -13,7 +13,7 @@ type myArg struct {
     Passwd string   `-pPASS --passwd
                     user password`
     Act string      `---ACT
-                    !user action and arg
+                    ! user action and arg
                     -u --upload
                     upload file with username/password
                     -d --download

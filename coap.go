@@ -253,13 +253,14 @@ func (oa *oaItem)helpShort(w io.Writer) {
 }
 
 
-func (oa *oaItem)helpLong(w io.Writer, align int) {
+func (oa *oaItem)helpLong(w io.Writer, head, align int) {
     s := bytes.Repeat([]byte(" "), align)
     b := bytes.Repeat([]byte(" "), align)
-    copy(b[1:], "-" + oa.Short + ",")
-    copy(b[5:], "--" + oa.Long)
+    copy(b[head:], "-" + oa.Short + ",")
+    copy(b[head + 4:], "--" + oa.Long)
     w.Write(b)
     if len(oa.HelpLs) <= 0 { return }
+    //w.Write(b[:head])
     fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
     for _, l := range oa.HelpLs[1:] {
         w.Write(s)
@@ -268,13 +269,35 @@ func (oa *oaItem)helpLong(w io.Writer, align int) {
 }
 
 
-func (oa *oaItem)helpLongGrp(w io.Writer, align int) {
+func (oa *oaItem)helpLongGrp(w io.Writer, head, align int) {
+    w.Write(bytes.Repeat([]byte(" "), head))
     fmt.Fprintf(w, "%s\n", oa.HelpLs[0])
     for _, g := range oa.Grp {
-        g.helpLong(w, align + 2)
+        g.helpLong(w, head + 2, align)
     }
 }
 
+
+func (oa *oaItem)calSp() (sp int) {
+    if len(oa.Grp) > 0 {        // grp item
+        for _, g := range oa.Grp {
+            s := g.calSp() + 2                  // extra leading "  "
+            if s > sp { sp = s }
+        }
+        //fmt.Printf("sp = %d\n", sp)
+    } else {                    // regular item
+        sp = 2                                  // leading "  "
+        if len(oa.Short) > 0 {
+            sp = sp + 2                         // len("-S")
+        }
+        if len(oa.Long) > 0 {
+            sp = sp + len(oa.Long) + 2 + 2      // "--" and ending "  "
+            if oa.Short != "" { sp = sp + 2 }   // len(", ")
+        }
+    }
+    //fmt.Printf("%s'%d\n", oa.Long, sp)
+    return
+}
 
 func canUse(val *reflect.Value, org *string) bool {
     if org == nil || *org == "--" || strings.HasPrefix(*org, "--") {
@@ -493,16 +516,17 @@ func initial(i interface{}) *oaInfo {
         it := &oaItem{}
         it.init(fs, fv)
         info.oas = append(info.oas, it)
-        c := 0
+        //c := 0
         if len(it.Short) > 0 {
             info.oam["-" + it.Short] = it
-            c = c + 2                   // for len("-S")
+        //    c = c + 2                   // for len("-S")
         }
         if len(it.Long) > 0 {
             info.oam["--" + it.Long] = it
-            c = c + len(it.Long) + 2
-            if it.Short != "" { c = c + 2 }   // for len(", ")
+        //    c = c + len(it.Long) + 2
+        //    if it.Short != "" { c = c + 2 }   // for len(", ")
         }
+        c := it.calSp()
         if c > info.sp { info.sp = c }
     }
     return info
@@ -517,7 +541,7 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
                 g, e := goa.parse(opt, arg)
                 if e != "" { return 0, e }
                 if g > 0 && oa.Got {
-                    return 0, "option conflict"
+                    return 0, "option conflict: " + oa.Long
                 }
                 if g > 0 {
                     got = g
@@ -617,7 +641,7 @@ func Help(arg interface{}) { HelpMsg(arg, "", os.Stdout) }
 
 func HelpMsg(i interface{}, msg string, w io.Writer) {
     oi := initial(i)
-    a := 0
+    //a := 0
     if msg != "" {
         fmt.Fprintf(w, "%s\n", msg)
     }
@@ -625,16 +649,16 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
     for _, oa := range oi.oas {
         oa.helpShort(w)
         fmt.Fprint(w, " ")
-        if i := len(oa.Short) + len(oa.Long) + 8; i > a {
-            a = i
-        }
+        //if i := len(oa.Short) + len(oa.Long) + 8; i > a {
+        //    a = i
+        //}
     }
     fmt.Fprint(w, "\n")
     for _, oa := range oi.oas {
         if len(oa.Grp) > 0 {    // group entry
-            oa.helpLongGrp(w, a)
+            oa.helpLongGrp(w, 2, oi.sp)
         } else {
-            oa.helpLong(w, a)
+            oa.helpLong(w, 2, oi.sp)
         }
     }
     fmt.Fprint(w, "\n")
