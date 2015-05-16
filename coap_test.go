@@ -694,28 +694,28 @@ func TestParseArg4(tst *testing.T) {
                     test for string2`
     }
 
-    a1 := A1{}
+    a1 := A1{S: "ab"}
     msg, args := ParseArg(&a1, []string{"-i", "12"})
-    if a1.I != 0 || a1.S != "" || msg != "option -i should be one of [1, 2, 3]" {
+    if a1.I != 0 || a1.S != "ab" || msg != "option -i should be one of [1, 2, 3]" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
     if len(args) != 0 {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = A1{}
+    a1 = A1{S: "cd"}
     msg, args = ParseArg(&a1, []string{"-i", "2"})
-    if a1.I != 2 || a1.S != "" || msg != "Missed option -s" {
+    if a1.I != 2 || a1.S != "cd" || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
-    a1 = A1{}
+    a1 = A1{S: "cd"}
     msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "xy"})
-    if a1.I != 2 || a1.S != "" || msg != `option -s should be one of ["ab", "cd"]` {
+    if a1.I != 2 || a1.S != "cd" || msg != `option -s should be one of ["ab", "cd"]` {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
-    a1 = A1{}
+    a1 = A1{S: "cd"}
     msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "ab"})
     if a1.I != 2 || a1.S != "ab" || msg != `` {
         tst.Error("failed testParseArg 1", a1, msg)
@@ -739,9 +739,9 @@ func TestParseArg5(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = aa{}
+    a1 = aa{I: 1}
     msg, args = ParseArg(&a1, []string{})
-    if a1.I != 0 || msg != "Missed option -i" {
+    if a1.I != 1 || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 

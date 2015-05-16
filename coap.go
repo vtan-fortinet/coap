@@ -211,9 +211,11 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
             }
         }
         oa.Long = strings.Join(ss, "|")
-    } else if ! oa.Must {
-        // or we should panic because this should be resolved when coding
-        oa.Must = ! oa.HasDft && len(oa.Canm) > 0
+    //} else if ! oa.Must {
+    //    // or we should panic because this should be resolved when coding
+    //    oa.Must = ! oa.HasDft && len(oa.Canm) > 0
+    } else if ! oa.Must && ! oa.HasDft && len(oa.Canm) > 0 {
+        panic("If you has candidate, you should set must or default value")
     }
 }
 
