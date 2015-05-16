@@ -211,6 +211,9 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
             }
         }
         oa.Long = strings.Join(ss, "|")
+    } else if ! oa.Must {
+        // or we should panic because this should be resolved when coding
+        oa.Must = ! oa.HasDft && len(oa.Canm) > 0
     }
 }
 
@@ -241,13 +244,15 @@ func (oa *oaItem)helpShort(w io.Writer) {
     }
     if oa.Vname != "" {
         fmt.Fprintf(w, " ")
-        if oa.HasDft { fmt.Fprintf(w, "[") }
+        //if oa.HasDft { fmt.Fprintf(w, "[") }
+        if oa.HasDft && oa.Must { fmt.Fprintf(w, "[") }
         if oa.Vname == "" && len(oa.Long) > 0 {
             fmt.Fprintf(w, strings.ToUpper(oa.Long))
         } else {
             fmt.Fprintf(w, oa.Vname)
         }
-        if oa.HasDft { fmt.Fprintf(w, "]") }
+        //if oa.HasDft { fmt.Fprintf(w, "]") }
+        if oa.HasDft && oa.Must { fmt.Fprintf(w, "]") }
     }
     if ! oa.Must { fmt.Fprintf(w, "]") }
 }
@@ -434,7 +439,8 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     //} else if arg != nil {
     } else if cu = canUse(&oa.val, arg); cu {
         pa = *arg
-    } else if oa.HasDft {
+    //} else if oa.HasDft {
+    } else if oa.HasDft && (oa.Must || oa.val.Kind() == reflect.Bool) {
         pa = oa.StrDft
     } else {
         err = "option " + op + " need parameter"

@@ -597,7 +597,8 @@ func TestParseArg2(tst *testing.T) {
     }
 
     a1 = A1{I: 12, U: 34}
-    msg, args = ParseArg(&a1, []string{"--int", "--uint"})
+    //msg, args = ParseArg(&a1, []string{"--int", "--uint"})
+    msg, args = ParseArg(&a1, []string{"--int"})
     if a1.I != 12 || a1.U != 34 || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
@@ -704,7 +705,7 @@ func TestParseArg4(tst *testing.T) {
 
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-i", "2"})
-    if a1.I != 2 || a1.S != "" || msg != "" {
+    if a1.I != 2 || a1.S != "" || msg != "Missed option -s" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
@@ -721,6 +722,35 @@ func TestParseArg4(tst *testing.T) {
     }
 }
 
+
+func TestParseArg5(tst *testing.T) {
+    type aa struct {
+        I int    `-i --int 
+                    [1, 2, 3]
+                    test for int1`
+    }
+
+    a1 := aa{I: 2}
+    msg, args := ParseArg(&a1, []string{})
+    if a1.I != 2 || msg != "" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+    if len(args) != 0 {
+        tst.Error("failed testParseArg 2", args)
+    }
+
+    a1 = aa{}
+    msg, args = ParseArg(&a1, []string{})
+    if a1.I != 0 || msg != "Missed option -i" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+
+    a1 = aa{I: 2}
+    msg, args = ParseArg(&a1, []string{"-i"})
+    if a1.I != 2 || msg != "option -i need parameter" {
+        tst.Error("failed testParseArg 1", a1, msg)
+    }
+}
 
 func TestParseGrp1(tst *testing.T) {
     type grp struct {
