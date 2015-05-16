@@ -703,9 +703,9 @@ func TestParseArg4(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = A1{S: "cd"}
+    a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-i", "2"})
-    if a1.I != 2 || a1.S != "cd" || msg != "" {
+    if a1.I != 2 || a1.S != "" || msg != "Missed option -s" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
