@@ -95,7 +95,6 @@ func isZero(v reflect.Value) (b bool) {
     case reflect.Complex64, reflect.Complex128:
          return v.Complex() == reflect.Zero(v.Type()).Complex()
     case reflect.Slice, reflect.String:
-        //fmt.Printf("v.Len() = %d, [%s]\n", v.Len(), v.String())
         return v.Len() == 0
     default:
         panic("Not support type " + v.Kind().String())
@@ -106,11 +105,9 @@ func isZero(v reflect.Value) (b bool) {
 func (oa *oaItem)initDefault(val reflect.Value, dat string) {
     ds := strings.SplitN(dat, "|", 2)
     if len(ds) == 2 { oa.MsgDft = ds[1] }
-    //fmt.Printf("ds = %d, [%s], %v\n", len(ds), ds[0], oa.HasDft)
     if ds[0] != "" {
         oa.HasDft = true
         oa.StrDft = ds[0]
-        //fmt.Printf("StrDft=[%s]\n", oa.StrDft)
     } else if ! isZero(val) {
         oa.HasDft = true
         if val.Kind() == reflect.Slice {
@@ -126,7 +123,6 @@ func (oa *oaItem)initOpts(line string) string {
     // 1: short, 2: for long, 3: default
     opts := oa.splitOpt(line)
     for _, opt := range opts {
-        //fmt.Printf("[%s]\n", opt)
         switch {
         case opt[:2] == "--":
             oa.Long = opt[2:]
@@ -197,7 +193,8 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
         case strings.HasPrefix(line, "[") && strings.HasSuffix(line, "]"):
             // candidates
             soa.initCans([]byte(line))
-        default:    // help msg
+        default:
+            // help msg
             soa.initHelp(line)
         }
     }
@@ -292,7 +289,6 @@ func (oa *oaItem)calSp() (sp int) {
             s := g.calSp() + 2                  // extra leading "  "
             if s > sp { sp = s }
         }
-        //fmt.Printf("sp = %d\n", sp)
     } else {                    // regular item
         sp = 2                                  // leading "  "
         if len(oa.Short) > 0 {
@@ -303,7 +299,6 @@ func (oa *oaItem)calSp() (sp int) {
             if oa.Short != "" { sp = sp + 2 }   // len(", ")
         }
     }
-    //fmt.Printf("%s'%d\n", oa.Long, sp)
     return
 }
 
@@ -386,7 +381,6 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 
 
 func (oa *oaItem)setGrp(goa *oaItem) (err string) {
-    //println("Short=", goa.Short, "val=", goa.val.String())
     switch k := oa.val.Kind(); k {
     case reflect.String:
         if len(goa.Short) > 0 {
