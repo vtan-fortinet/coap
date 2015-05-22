@@ -508,9 +508,11 @@ func initial(i interface{}) *oaInfo {
     v := reflect.ValueOf(i)
     info, ok := infos[v.Pointer()]
     if ok {     // already init, just return it
+        //println("already have")
         return info
     }
     info = &oaInfo{oas: make([]*oaItem, 0, 5), oam: make(map[string]*oaItem, 5)}
+    infos[v.Pointer()] = info
     ii := reflect.Indirect(v)
     st := ii.Type()
     for idx := 0; idx < st.NumField(); idx++ {
