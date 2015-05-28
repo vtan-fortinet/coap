@@ -35,6 +35,7 @@ type oaItem struct {    // option, argument item
 type oaInfo struct {
     oam map[string]*oaItem
     oas []*oaItem
+    vfm map[string]func(interface{})string   // validate function map
     sp  int     // length of help leading space
 }
 
@@ -511,7 +512,10 @@ func initial(i interface{}) *oaInfo {
         //println("already have")
         return info
     }
-    info = &oaInfo{oas: make([]*oaItem, 0, 5), oam: make(map[string]*oaItem, 5)}
+    info = &oaInfo{oas: make([]*oaItem, 0, 5),
+                   oam: make(map[string]*oaItem, 5),
+                   vfm: make(map[string]func(interface{})string, 5),
+                   }
     infos[v.Pointer()] = info
     ii := reflect.Indirect(v)
     st := ii.Type()
@@ -625,6 +629,22 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
         }
     }
     for _, oa := range oi.oas {
+        if oa.Short != "" {
+            f, ok := oi.vfm[oa.Short]
+            if ! ok { f, ok = oi.vfm["-" + oa.Short] }
+            if ok {
+                msg = f(i) 
+                if msg != "" { return }
+            }
+        }
+        if oa.Long != "" {
+            f, ok := oi.vfm[oa.Long]
+            if ! ok { f, ok = oi.vfm["--" + oa.Long] }
+            if ok {
+                msg = f(i) 
+                if msg != "" { return }
+            }
+        }
         if oa.Must && ! oa.Got {
             if oa.Short != "" {
                 msg = "Missed option -" + oa.Short
@@ -635,6 +655,7 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
                     msg = "Missed option --" + oa.Long
                 }
             }
+            if msg != "" { return }
         }
     }
     return
@@ -667,4 +688,10 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
         }
     }
     fmt.Fprint(w, "\n")
+}
+
+
+func RegValFunc(i interface{}, opt string, f func(interface{})string) {
+    oi := initial(i)
+    oi.vfm[opt] = f
 }
