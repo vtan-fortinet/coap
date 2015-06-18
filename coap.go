@@ -573,17 +573,19 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
 }
 
 
-func Parse(i interface{}) []string {
+func ParseDesc(i interface{}, desc string) []string {
     msg, ps := ParseArg(i, os.Args[1:])
     if msg != "" {
         if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
-            msg = ""
+            //msg = ""
+            msg = desc
         }
         HelpMsg(i, msg, os.Stdout)
         os.Exit(1)
     }
     return ps
 }
+func Parse(i interface{}) []string { return ParseDesc(i, "") }
 
 
 func get_next(idx int, args []string) (o, a *string) {
