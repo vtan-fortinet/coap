@@ -472,6 +472,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-bv"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -481,6 +482,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-bv", "aa", "bb"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -490,6 +492,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-b", "-v"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -499,6 +502,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-b", "-v", "11", "22"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -508,6 +512,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-bo", "-v", "11", "22"})
     if ! a1.B || a1.V || msg != "Don't know option: -o" {
@@ -517,6 +522,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"--bool", "-v", "11", "22"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -526,6 +532,7 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 4", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-b", "--verbose", "11", "22"})
     if ! a1.B || ! a1.V || msg != "" {
@@ -563,6 +570,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-u"})
     if a1.I != 0 || a1.U != 0 || msg != "option -u need parameter" {
@@ -572,6 +580,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"--uint"})
     if a1.I != 0 || a1.U != 0 || msg != "option --uint need parameter" {
@@ -590,6 +599,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{I: 12}
     msg, args = ParseArg(&a1, []string{"-iu", "32"})
     if a1.I != 12 || a1.U != 32 || msg != "" {
@@ -599,6 +609,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{I: 12, U: 34}
     //msg, args = ParseArg(&a1, []string{"--int", "--uint"})
     msg, args = ParseArg(&a1, []string{"--int"})
@@ -609,6 +620,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-i", "-12"})
     if a1.I != -12 || a1.U != 0 || msg != "" {
@@ -618,6 +630,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{I: -12}
     msg, args = ParseArg(&a1, []string{"-u", "-34"})
     if a1.I != -12 || a1.U != 0 || msg != "option -u need parameter" {
@@ -750,12 +763,14 @@ func TestParseArg5(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = aa{I: 1}
     msg, args = ParseArg(&a1, []string{})
     if a1.I != 1 || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
+    reset()
     a1 = aa{I: 2}
     msg, args = ParseArg(&a1, []string{"-i"})
     if a1.I != 2 || msg != "option -i need parameter" {
@@ -786,6 +801,7 @@ func TestParseGrp1(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 
+    reset()
     g = g1{}
     msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
     if g.S.Sel != "c" || g.S.Val != "abcd.txt" || msg != "" {
@@ -816,6 +832,7 @@ func TestParseGrp2(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 
+    reset()
     g = g2{}
     msg, args = ParseArg(&g, []string{"-c", "abcd.txt"})
     if g.S != "c abcd.txt" || msg != "" {
@@ -857,6 +874,7 @@ func TestParseGrp3(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 
+    reset()
     g = g3{S: &grp{Sel: "c", Val:"1234.txt"}}
     msg, args = ParseArg(&g, []string{"-x", "abcd.txt"})
     if g.S.Sel != "x" || g.S.Val != "abcd.txt" || msg != "" {
