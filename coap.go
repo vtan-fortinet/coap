@@ -127,6 +127,7 @@ func (oa *oaItem)initOpts(line string) string {
         switch {
         case opt[:2] == "--":
             oa.Long = opt[2:]
+            if oa.Vname == "" { oa.Vname = strings.ToUpper(oa.Long) }
         case opt[:1] == "-":
             oa.Short = opt[1:2]
             if len(opt) > 2 {
@@ -246,14 +247,18 @@ func (oa *oaItem)helpShort(w io.Writer) {
     if oa.Vname != "" {
         fmt.Fprintf(w, " ")
         //if oa.HasDft { fmt.Fprintf(w, "[") }
-        if oa.HasDft && oa.Must { fmt.Fprintf(w, "[") }
-        if oa.Vname == "" && len(oa.Long) > 0 {
-            fmt.Fprintf(w, strings.ToUpper(oa.Long))
+        if oa.HasDft && oa.Must {
+            fmt.Fprintf(w, "[", oa.Vname, "]")
         } else {
             fmt.Fprintf(w, oa.Vname)
         }
+        //if oa.Vname == "" && len(oa.Long) > 0 {
+        //    fmt.Fprintf(w, strings.ToUpper(oa.Long))
+        //} else {
+        //    fmt.Fprintf(w, oa.Vname)
+        //}
         //if oa.HasDft { fmt.Fprintf(w, "]") }
-        if oa.HasDft && oa.Must { fmt.Fprintf(w, "]") }
+        //if oa.HasDft && oa.Must { fmt.Fprintf(w, "]") }
     }
     if ! oa.Must { fmt.Fprintf(w, "]") }
 }

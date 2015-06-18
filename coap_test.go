@@ -7,6 +7,9 @@ import (
 )
 
 
+func reset() { infos = make(map[uintptr]*oaInfo) }
+
+
 func TestInitHelp1(tst *testing.T) {
     oa := oaItem{}
     oa.initHelp(`!this is a help msg`)
@@ -460,10 +463,10 @@ func TestParseArg1(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = A1{}
-    msg, args = ParseArg(&a1, []string{"-v"})
-    if a1.B || ! a1.V || msg != "Missed option -b" {
-        tst.Error("failed testParseArg 1", a1, msg)
+    a2 := A1{}
+    msg, args = ParseArg(&a2, []string{"-v"})
+    if a2.B || ! a2.V || msg != "Missed option -b" {
+        tst.Error("failed testParseArg 1", a2, msg)
     }
     if len(args) != 0 {
         tst.Error("failed testParseArg 2", args)
@@ -551,10 +554,10 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = A1{}
-    msg, args = ParseArg(&a1, []string{"-i"})
-    if a1.I != 0 || a1.U != 0 || msg != "option -i need parameter" {
-        tst.Error("failed testParseArg 1", a1, msg)
+    a2 := A1{}
+    msg, args = ParseArg(&a2, []string{"-i"})
+    if a2.I != 0 || a2.U != 0 || msg != "option -i need parameter" {
+        tst.Error("failed testParseArg 1", a2, msg)
     }
     if len(args) != 0 {
         tst.Error("failed testParseArg 2", args)
@@ -578,10 +581,10 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
-    a1 = A1{}
-    msg, args = ParseArg(&a1, []string{"-u", "32"})
-    if a1.I != 0 || a1.U != 32 || msg != "Missed option -i" {
-        tst.Error("failed testParseArg 1", a1, msg)
+    a4 := A1{}
+    msg, args = ParseArg(&a4, []string{"-u", "32"})
+    if a4.I != 0 || a4.U != 32 || msg != "Missed option -i" {
+        tst.Error("failed testParseArg 1", a4, msg)
     }
     if len(args) != 0 {
         tst.Error("failed testParseArg 2", args)
@@ -624,6 +627,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-i", "-"})
     if a1.I != 0 || a1.U != 0 || msg != "option -i need parameter" {
@@ -633,6 +637,7 @@ func TestParseArg2(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{I: -12}
     msg, args = ParseArg(&a1, []string{"-i", "-"})
     if a1.I != -12 || a1.U != 0 || msg != "" {
@@ -661,12 +666,14 @@ func TestParseArg3(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{Is:[]int{12}}
     msg, args = ParseArg(&a1, []string{"-i", "-34", "-s", "-"})
     if a1.Is[0] != -34 || a1.Ss[0] != "-" || msg != "" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
+    reset()
     a1 = A1{Is:[]int{12}}
     msg, args = ParseArg(&a1, []string{"-i", "-s", "-2"})
     if a1.Is[0] != 12 || len(a1.Ss) != 0 || msg != "option -s need parameter" {
@@ -676,6 +683,7 @@ func TestParseArg3(tst *testing.T) {
         tst.Error("failed testParseArg 1", a1)
     }
 
+    reset()
     a1 = A1{Is:[]int{12}}
     msg, args = ParseArg(&a1, []string{"-i", "-i", "-2"})
     if len(a1.Is) != 2 || a1.Is[0] != 12 || a1.Is[1] != -2 {
@@ -703,18 +711,21 @@ func TestParseArg4(tst *testing.T) {
         tst.Error("failed testParseArg 2", args)
     }
 
+    reset()
     a1 = A1{}
     msg, args = ParseArg(&a1, []string{"-i", "2"})
     if a1.I != 2 || a1.S != "" || msg != "Missed option -s" {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
+    reset()
     a1 = A1{S: "cd"}
     msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "xy"})
     if a1.I != 2 || a1.S != "cd" || msg != `option -s should be one of ["ab", "cd"]` {
         tst.Error("failed testParseArg 1", a1, msg)
     }
 
+    reset()
     a1 = A1{S: "cd"}
     msg, args = ParseArg(&a1, []string{"-i", "2", "-s", "ab"})
     if a1.I != 2 || a1.S != "ab" || msg != `` {
@@ -814,6 +825,7 @@ func TestParseGrp2(tst *testing.T) {
         tst.Error("failed testParseArg 1", args)
     }
 
+    reset()
     g = g2{}
     msg, args = ParseArg(&g, []string{"--decompress", "abcd.txt"})
     if g.S != "x abcd.txt" || msg != "" {
