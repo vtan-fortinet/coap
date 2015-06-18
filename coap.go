@@ -578,6 +578,8 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
 }
 
 
+// This is a convenient function
+// accept -h, --help for showing the usage, and description of the program
 func ParseDesc(i interface{}, desc string) []string {
     msg, ps := ParseArg(i, os.Args[1:])
     if msg != "" {
@@ -590,6 +592,7 @@ func ParseDesc(i interface{}, desc string) []string {
     }
     return ps
 }
+// Convenient function, use for program need no description.
 func Parse(i interface{}) []string { return ParseDesc(i, "") }
 
 
@@ -602,6 +605,8 @@ func get_next(idx int, args []string) (o, a *string) {
 }
 
 
+// parse argument and options, took a slice os string, return err and argument
+// err is a string, arguments is a slice of string, 
 func ParseArg(i interface{}, args []string) (msg string, ps []string) {
     oi := initial(i)
     got := 0
@@ -669,9 +674,11 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
 }
 
 
+// convenient function, no extra message, write to stdout
 func Help(arg interface{}) { HelpMsg(arg, "", os.Stdout) }
 
 
+// Print help with extra message to writer
 func HelpMsg(i interface{}, msg string, w io.Writer) {
     oi := initial(i)
     //a := 0
@@ -698,6 +705,7 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
 }
 
 
+// register validating function
 func RegValFunc(i interface{}, opt string, f func(interface{})string) {
     oi := initial(i)
     oi.vfm[opt] = f
