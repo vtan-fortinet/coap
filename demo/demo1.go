@@ -11,7 +11,7 @@ type myArg struct {
                     !what is your name`
     Passwd string   `-pPASS --passwd
                     user password`
-    Lvl int         `-lLEVEL --level
+    Lvl int         `-lLEVEL --level 2|LVL
                     [1, 2, 3]
                     comrpess level`
     Act string      `---ACT
@@ -24,7 +24,7 @@ type myArg struct {
 
 
 func main() {
-    m := myArg{Passwd: "123456", Lvl: 2}
+    m := myArg{Passwd: "123456"} //, Lvl: 2}
     args := coap.Parse(&m)
     fmt.Printf("-n = %s, -p = '%s'\n", m.Uname, m.Passwd)
     fmt.Printf("-l = %d, act = %s\n", m.Lvl, m.Act)

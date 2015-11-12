@@ -4,6 +4,7 @@ import (
     "fmt"
     "testing"
     "reflect"
+    "strconv"
 )
 
 
@@ -885,3 +886,25 @@ func TestParseGrp3(tst *testing.T) {
     }
 }
 
+
+// go test -bench=. coap
+func BenchmarkAdd(bm *testing.B) {
+    src := []byte("52")
+    var n byte
+    for i := 0; i < bm.N; i++ {
+        for _, b := range src {
+            if b < '0' || b > '9' { break }
+            n = n * 10 + b - '0'
+        }
+    }
+}
+
+
+func BenchmarkConv(bm *testing.B) {
+    src := []byte("52")
+    var n uint64
+    for i := 0; i < bm.N; i++ {
+        n, _ = strconv.ParseUint(string(src), 10, 32)
+        _ = uint8(n)
+    }
+}
