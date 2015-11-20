@@ -61,7 +61,8 @@ type Arg struct {
                 -e --end
                 end the service`
 
-    // use Grp struct, must has sel and val, sl must be string,
+    // use Grp struct, must has sel and val,
+    // sel must be string,
     // val can be anything convatable from string
     G2 *Grp    `---FILENAME
                 !Compress/uncompress file

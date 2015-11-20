@@ -648,7 +648,7 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             f, ok := oi.vfm[oa.Short]
             if ! ok { f, ok = oi.vfm["-" + oa.Short] }
             if ok {
-                msg = f(i) 
+                msg = f(i)
                 if msg != "" { return }
             }
         }
@@ -656,7 +656,7 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             f, ok := oi.vfm[oa.Long]
             if ! ok { f, ok = oi.vfm["--" + oa.Long] }
             if ok {
-                msg = f(i) 
+                msg = f(i)
                 if msg != "" { return }
             }
         }
@@ -683,12 +683,21 @@ func Help(arg interface{}) { HelpMsg(arg, "", os.Stdout) }
 
 // Print help with extra message to writer
 func HelpMsg(i interface{}, msg string, w io.Writer) {
-    oi := initial(i)
     //a := 0
     if msg != "" {
         fmt.Fprintf(w, "%s\n", msg)
     }
     fmt.Fprintf(w, "Usage: %s ", path.Base(os.Args[0]))
+
+    HelpShort(i, w)
+    fmt.Fprint(w, "\n")
+    HelpLong(i, w)
+    fmt.Fprint(w, "\n")
+}
+
+
+func HelpShort(i interface{}, w io.Writer) {
+    oi := initial(i)
     for _, oa := range oi.oas {
         oa.helpShort(w)
         fmt.Fprint(w, " ")
@@ -696,7 +705,11 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
         //    a = i
         //}
     }
-    fmt.Fprint(w, "\n")
+}
+
+
+func HelpLong(i interface{}, w io.Writer) {
+    oi := initial(i)
     for _, oa := range oi.oas {
         if len(oa.Grp) > 0 {    // group entry
             oa.helpLongGrp(w, 2, oi.sp)
@@ -704,7 +717,6 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
             oa.helpLong(w, 2, oi.sp)
         }
     }
-    fmt.Fprint(w, "\n")
 }
 
 
