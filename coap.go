@@ -267,10 +267,14 @@ func (oa *oaItem)helpShort(w io.Writer) {
 func (oa *oaItem)helpLong(w io.Writer, head, align int) {
     s := bytes.Repeat([]byte(" "), align)
     b := bytes.Repeat([]byte(" "), align)
-    copy(b[head:], "-" + oa.Short) // + ",")
-    //copy(b[head + 4:], "--" + oa.Long)
+    if len(oa.Short) > 0 {
+        copy(b[head:], "-" + oa.Short) // + ",")
+        if len(oa.Long) > 0 {
+            copy(b[head + 2:], ", ")
+        }
+    }
     if len(oa.Long) > 0 {
-        copy(b[head + 2:], ", --" + oa.Long)
+        copy(b[head + 4:], "--" + oa.Long)
     }
     w.Write(b)
     if len(oa.HelpLs) <= 0 { return }
