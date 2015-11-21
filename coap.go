@@ -267,6 +267,15 @@ func (oa *oaItem)helpShort(w io.Writer) {
 func (oa *oaItem)helpLong(w io.Writer, head, align int) {
     s := bytes.Repeat([]byte(" "), align)
     b := bytes.Repeat([]byte(" "), align)
+    //if len(oa.Short) > 0 {
+    //    copy(b[head:], "-" + oa.Short) // + ",")
+    //    if len(oa.Long) > 0 {
+    //        copy(b[head + 2:], ", --" + oa.Long)
+    //    }
+    //} else if len(oa.Long) > 0 {
+    //    copy(b[head:], "--" + oa.Long)
+    //}
+
     if len(oa.Short) > 0 {
         copy(b[head:], "-" + oa.Short) // + ",")
         if len(oa.Long) > 0 {
@@ -276,6 +285,7 @@ func (oa *oaItem)helpLong(w io.Writer, head, align int) {
     if len(oa.Long) > 0 {
         copy(b[head + 4:], "--" + oa.Long)
     }
+
     w.Write(b)
     if len(oa.HelpLs) <= 0 { return }
     //w.Write(b[:head])
@@ -304,12 +314,13 @@ func (oa *oaItem)calSp() (sp int) {
         }
     } else {                    // regular item
         sp = 2                                  // leading "  "
-        if len(oa.Short) > 0 {
-            sp = sp + 2                         // len("-S")
-        }
+        //if len(oa.Short) > 0 {
+        //    sp = sp + 2                         // len("-S")
+        //}
+        sp = sp + 2 + 2                        // len("-S, ")
         if len(oa.Long) > 0 {
             sp = sp + len(oa.Long) + 2 + 2      // "--" and ending "  "
-            if oa.Short != "" { sp = sp + 2 }   // len(", ")
+            //if oa.Short != "" { sp = sp + 2 }   // len(", ")
         }
     }
     return
