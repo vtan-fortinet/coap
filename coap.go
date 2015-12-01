@@ -233,11 +233,11 @@ func (oa *oaItem)helpShort(w io.Writer) {
     if oa.Short == "" && oa.Long == "" && len(oa.Grp) == 0 {
         return
     }
-    if ! oa.Must { fmt.Fprintf(w, "[") }
+    if ! oa.Must { fmt.Fprint(w, "[") }
     if len(oa.Grp) > 0 {    // group entry
         s := ""
         for _, g := range oa.Grp {
-            fmt.Fprintf(w, s)
+            fmt.Fprint(w, s)
             g.helpShortOpt(w)
             s = "|"
         }
@@ -245,22 +245,22 @@ func (oa *oaItem)helpShort(w io.Writer) {
         oa.helpShortOpt(w)
     }
     if oa.Vname != "" {
-        fmt.Fprintf(w, " ")
-        //if oa.HasDft { fmt.Fprintf(w, "[") }
+        fmt.Fprint(w, " ")
+        //if oa.HasDft { fmt.Fprint(w, "[") }
         if oa.HasDft && oa.Must {
-            fmt.Fprintf(w, "[", oa.Vname, "]")
+            fmt.Fprint(w, "[", oa.Vname, "]")
         } else {
-            fmt.Fprintf(w, oa.Vname)
+            fmt.Fprint(w, oa.Vname)
         }
         //if oa.Vname == "" && len(oa.Long) > 0 {
-        //    fmt.Fprintf(w, strings.ToUpper(oa.Long))
+        //    fmt.Fprint(w, strings.ToUpper(oa.Long))
         //} else {
-        //    fmt.Fprintf(w, oa.Vname)
+        //    fmt.Fprint(w, oa.Vname)
         //}
-        //if oa.HasDft { fmt.Fprintf(w, "]") }
-        //if oa.HasDft && oa.Must { fmt.Fprintf(w, "]") }
+        //if oa.HasDft { fmt.Fprint(w, "]") }
+        //if oa.HasDft && oa.Must { fmt.Fprint(w, "]") }
     }
-    if ! oa.Must { fmt.Fprintf(w, "]") }
+    if ! oa.Must { fmt.Fprint(w, "]") }
 }
 
 
@@ -515,13 +515,13 @@ func verifySP(i interface{}) {  // Struct Pointer
     v := reflect.ValueOf(i)
     k := v.Kind()
     if k != reflect.Ptr {
-        fmt.Fprintf(os.Stderr, "Need to be a ptr\n")
+        fmt.Fprint(os.Stderr, "Need to be a ptr\n")
         os.Exit(1)
     }
     s := reflect.Indirect(v)
     k = s.Kind()
     if k != reflect.Struct {
-        fmt.Fprintf(os.Stderr, "Need to be a struct\n")
+        fmt.Fprint(os.Stderr, "Need to be a struct\n")
         os.Exit(1)
     }
 }
