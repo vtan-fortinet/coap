@@ -20,6 +20,8 @@ type myArg struct {
                     upload file with username/password
                     -d --download
                     download and save into file`
+    Bool bool       `-b 
+                    test bool`
 }
 
 

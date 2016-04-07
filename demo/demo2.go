@@ -11,6 +11,8 @@ import (
 type myArg struct {
     Date string    `-dDate --date
                     !report date`
+    Tst bool        `--test
+                    test status`
 }
 
 
