@@ -136,6 +136,34 @@ func TestInitDefault(tst *testing.T) {
 }
 
 
+func TestDft1(tst *testing.T) {
+    type dft struct {
+        S string `-s --string ""|empty
+                  !this is em`
+    }
+    d := &dft{}
+    msg, ps := ParseArg(d, []string{})
+    if msg != "Missed option -s" || len(ps) != 0 {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    d = &dft{}
+    msg, ps = ParseArg(d, []string{"-s"})
+    if msg != "" || len(ps) != 0 || d.S != "" {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    d = &dft{}
+    msg, ps = ParseArg(d, []string{"-s", "str"})
+    if msg != "" || len(ps) != 0 || d.S != "str" {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+}
+
+
 type G struct {
     sel string
     val bool
@@ -209,7 +237,6 @@ func TestInitGrp1(tst *testing.T) {
     if len(oa.HelpLs) < 1 || oa.HelpLs[0] != "group help must"{
         tst.Error("failed to init grH3", oa.HelpLs)
     }
-
 }
 
 
@@ -265,6 +292,74 @@ func TestInitGrp2(tst *testing.T) {
     }
     if len(oa.Grp[1].HelpLs) < 1 || oa.Grp[1].HelpLs[0] != "group bac help" {
         tst.Error("failed to init GRH1", oa.Grp[1])
+    }
+}
+
+
+func TestInitGrp3(tst *testing.T) {
+    type g31 struct {
+        G3 string `---GRP3
+                   !help for g3
+                   -a --aa
+                   help for g3a
+                   -b --bb
+                   help for g3b`
+    }
+
+    g := &g31{}
+    msg, ps := ParseArg(g, make([]string, 0))
+    if msg != "Missed option -a|-b" || len(ps) != 0 {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    g = &g31{}
+    msg, ps = ParseArg(g, []string{"-a"}[:])
+    if msg != "option -a need parameter" || len(ps) != 0 {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    g = &g31{}
+    msg, ps = ParseArg(g, []string{"-a", "aa"}[:])
+    if msg != "" || len(ps) != 0 {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    g = &g31{}
+    msg, ps = ParseArg(g, []string{"-a", "aa", "cc"}[:])
+    if msg != "" || len(ps) != 1 || ps[0] != "cc" {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+}
+
+
+func TestInitGrp4(tst *testing.T) {
+    type g41 struct {
+        G4 string `---GRP4
+                   !help for g4
+                   -a 
+                   help for g3a
+                   -b
+                   help for g3b`
+        S string `-s --string
+                  string i`
+    }
+
+    g := &g41{}
+    msg, ps := ParseArg(g, []string{})
+    if msg != "Missed option -a|-b" || len(ps) != 0 {
+        tst.Error(msg)
+        tst.Error(ps)
+    }
+
+    g = &g41{}
+    msg, ps = ParseArg(g, []string{"-a", "aa"})
+    if msg != "" || len(ps) != 0 || g.G4 != "a aa" {
+        tst.Error(msg)
+        tst.Error(ps)
     }
 }
 

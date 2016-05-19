@@ -573,19 +573,24 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
     for _, oa := range oas {
         if oa.Grp != nil {
             for _, goa := range oa.Grp {
+                //fmt.Printf("goa.Short=%s\n", goa.Short)
                 g, e := goa.parse(opt, arg)
+                //fmt.Printf("g=%v, e=%v\n", g, e)
                 if e != "" { return 0, e }
-                if g > 0 && oa.Got {
-                    return 0, "option conflict: " + oa.Long
-                }
                 if g > 0 {
+                    if oa.Got {
+                        return 0, "option conflict: " + oa.Long
+                    }
                     got = g
                     oa.Got = true
                     err = oa.setGrp(goa)
-                    if err != "" { return }
+                    //if err != "" { return }
+                    //break
+                    return
                 }
             }
         } else {
+            //fmt.Printf("oa.Short=%s\n", oa.Short)
             got, err = oa.parse(opt, arg)
             if got != 0 || err != "" {
                 return

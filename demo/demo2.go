@@ -17,8 +17,8 @@ type myArg struct {
 
 
 func main() {
-    //m := myArg{Date: time.Now().AddDate(0, 0, -1).Format("2006-01-02")}
-    m := myArg{}
+    m := myArg{Date: time.Now().AddDate(0, 0, -1).Format("2006-01-02")}
+    //m := myArg{}
     coap.RegValFunc(&m, "d", func (i interface{}) string {
         m := i.(*myArg)
         _, err := time.Parse("2006-01-02", m.Date)
