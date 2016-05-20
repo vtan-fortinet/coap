@@ -27,6 +27,8 @@ type myArg struct {
                 help for begin: begin the service
                 -e --end
                 end the service`
+    Host string `-h --host
+                hostname`
 }
 
 

@@ -551,15 +551,11 @@ func initial(i interface{}) *oaInfo {
         it := &oaItem{}
         it.init(fs, fv)
         info.oas = append(info.oas, it)
-        //c := 0
         if len(it.Short) > 0 {
             info.oam["-" + it.Short] = it
-        //    c = c + 2                   // for len("-S")
         }
         if len(it.Long) > 0 {
             info.oam["--" + it.Long] = it
-        //    c = c + len(it.Long) + 2
-        //    if it.Short != "" { c = c + 2 }   // for len(", ")
         }
         c := it.calSp()
         if c > info.sp { info.sp = c }
@@ -605,18 +601,22 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
 
 
 // This is a convenient function
-// accept -h, --help for showing the usage, and description of the program
+// accept -h, --help if they are not been used
+// for showing the usage, and description of the program
 func ParseDesc(i interface{}, desc string) []string {
     msg, ps := ParseArg(i, os.Args[1:])
     if msg != "" {
-        if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
-            //msg = ""
-            //msg = desc
+        oi := initial(i)
+        //fmt.Printf("%v\n", oi.oam)
+        if len(os.Args) <= 1 {
+            HelpMsg(i, desc, os.Stdout)
+        } else if _, ok := oi.oam["-h"]; os.Args[1] == "-h" && !ok{
+            HelpMsg(i, desc, os.Stdout)
+        } else if _, ok := oi.oam["--help"]; os.Args[1] == "--help" && !ok{
             HelpMsg(i, desc, os.Stdout)
         } else {
             fmt.Fprint(os.Stderr, msg + "\n")
         }
-        //HelpMsg(i, msg, os.Stdout)
         os.Exit(1)
     }
     return ps
@@ -653,15 +653,12 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
         case strings.HasPrefix(args[idx], "-") && args[idx] != "-":
             o, a := get_next(idx, args)
             opts := *o
-            //println("opts1=", opts)
             for i := 1; i < len(opts) - 1; i++ {
                 x := "-" + opts[i:i+1]
-                //println("x=", x, "i=", i)
                 got, msg = oasParse(oi.oas, &x, nil)
                 if msg != "" { return }
             }
             opts = opts[:1] + opts[len(opts) - 1:]
-            //println("opts2=", opts)
             got, msg = oasParse(oi.oas, &opts, a)
             if msg != "" { return }
             if got > 1 { idx = idx + 1 }
