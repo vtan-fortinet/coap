@@ -611,9 +611,12 @@ func ParseDesc(i interface{}, desc string) []string {
     if msg != "" {
         if len(os.Args) <= 1 || os.Args[1] == "-h" || os.Args[1] == "--help" {
             //msg = ""
-            msg = desc
+            //msg = desc
+            HelpMsg(i, desc, os.Stdout)
+        } else {
+            fmt.Fprint(os.Stderr, msg + "\n")
         }
-        HelpMsg(i, msg, os.Stdout)
+        //HelpMsg(i, msg, os.Stdout)
         os.Exit(1)
     }
     return ps
