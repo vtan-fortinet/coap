@@ -948,6 +948,36 @@ func TestParseGrp2(tst *testing.T) {
 
 
 func TestParseGrp3(tst *testing.T) {
+    type g3 struct {
+        S string   `---FILENAME ""|
+                    !compress/decompress file
+                    -c --compress
+                    compress file
+                    -x --decompress
+                    decomrepss file`
+    }
+
+    g := g3{}
+    msg, args := ParseArg(&g, []string{"abcd.txt"})
+    if msg != "Missed option -c|-x" {
+        tst.Error("failed testParseArg 1", g, msg)
+    }
+    if len(args) != 1 || args[0] != "abcd.txt" {
+        tst.Error("failed testParseArg 1", args)
+    }
+
+
+    reset()
+    g = g3{}
+    msg, args = ParseArg(&g, []string{"-c"})
+    //tst.Log(msg, args)
+    if msg != "" || len(args) != 0  {
+        tst.Error("failed testParseGrp3", g, msg, args)
+    }
+}
+
+
+func TestParseGrp4(tst *testing.T) {
     type grp struct {
         Sel string
         Val string
@@ -1003,3 +1033,21 @@ func BenchmarkConv(bm *testing.B) {
         _ = uint8(n)
     }
 }
+
+
+func BenchmarkN2S(bm *testing.B) {
+    n := 1234
+    for i := 0; i < bm.N; i++ {
+        _ = fmt.Sprintf("%d", n)
+    }
+}
+
+
+func BenchmarkS2N(bm *testing.B) {
+    src := "1234"
+    for i := 0; i < bm.N; i++ {
+        _, _ = strconv.ParseInt(src, 10, 64)
+    }
+}
+
+

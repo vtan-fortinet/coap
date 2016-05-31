@@ -210,6 +210,8 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
             } else if a.Long != "" {
                 ss = append(ss, "-" + a.Long)
             }
+            // group item copy from group
+            a.HasDft, a.StrDft, a.Must = oa.HasDft, oa.StrDft, oa.Must
         }
         oa.Long = strings.Join(ss, "|")
     } else if ! oa.Must {
@@ -248,19 +250,11 @@ func (oa *oaItem)helpShort(w io.Writer) {
     }
     if oa.Vname != "" {
         fmt.Fprint(w, " ")
-        //if oa.HasDft { fmt.Fprint(w, "[") }
         if oa.HasDft && oa.Must {
             fmt.Fprint(w, "[", oa.Vname, "]")
         } else {
             fmt.Fprint(w, oa.Vname)
         }
-        //if oa.Vname == "" && len(oa.Long) > 0 {
-        //    fmt.Fprint(w, strings.ToUpper(oa.Long))
-        //} else {
-        //    fmt.Fprint(w, oa.Vname)
-        //}
-        //if oa.HasDft { fmt.Fprint(w, "]") }
-        //if oa.HasDft && oa.Must { fmt.Fprint(w, "]") }
     }
     if ! oa.Must { fmt.Fprint(w, "]") }
 }
@@ -269,14 +263,6 @@ func (oa *oaItem)helpShort(w io.Writer) {
 func (oa *oaItem)helpLong(w io.Writer, head, align int) {
     s := bytes.Repeat([]byte(" "), align)
     b := bytes.Repeat([]byte(" "), align)
-    //if len(oa.Short) > 0 {
-    //    copy(b[head:], "-" + oa.Short) // + ",")
-    //    if len(oa.Long) > 0 {
-    //        copy(b[head + 2:], ", --" + oa.Long)
-    //    }
-    //} else if len(oa.Long) > 0 {
-    //    copy(b[head:], "--" + oa.Long)
-    //}
 
     if len(oa.Short) > 0 {
         copy(b[head:], "-" + oa.Short) // + ",")
@@ -316,13 +302,9 @@ func (oa *oaItem)calSp() (sp int) {
         }
     } else {                    // regular item
         sp = 2                                  // leading "  "
-        //if len(oa.Short) > 0 {
-        //    sp = sp + 2                         // len("-S")
-        //}
         sp = sp + 2 + 2                        // len("-S, ")
         if len(oa.Long) > 0 {
             sp = sp + len(oa.Long) + 2 + 2      // "--" and ending "  "
-            //if oa.Short != "" { sp = sp + 2 }   // len(", ")
         }
     }
     return
@@ -456,14 +438,12 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     var op, pa string
     var cu bool
     op = *opt
+    //println("oa.HasDft =", oa.HasDft, oa.Must)
     if eqp {
         op = (*opt)[:len(oa.Long) + 2]
         pa = (*opt)[len(oa.Long) + 3:]
-    //} else if arg != nil {
     } else if cu = canUse(&oa.val, arg); cu {
         pa = *arg
-    //} else if oa.HasDft {
-    //} else if oa.HasDft && (oa.Must || oa.val.Kind() == reflect.Bool) {
     } else if oa.HasDft && (oa.Must || oa.IsBool) {
         pa = oa.StrDft
     } else {
