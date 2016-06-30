@@ -646,6 +646,9 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             ps = append(ps, args[idx])
         }
     }
+    if f, ok := oi.vfm[""]; ok {
+        if msg = f(i); msg != "" { return }
+    }
     for _, oa := range oi.oas {
         if oa.Short != "" {
             f, ok := oi.vfm[oa.Short]
