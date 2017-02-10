@@ -646,8 +646,6 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             ps = append(ps, args[idx])
         }
     }
-    fmt.Printf("%#v\n", oi.vfm)
-    fmt.Printf("%#v\n", oi.oas)
     if f, ok := oi.vfm[""]; ok {
         if msg = f(i); msg != "" { return }
     }
