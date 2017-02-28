@@ -4,20 +4,8 @@ import (
     "coap"
 )
 
-type Grp struct {
-    Sel string  // first must be string
-    Val string  // type is whatever can be converted from string
-}
-
 
 type myArg struct {
-    //InDn *Grp   `---DIRNAME
-    //            Input/Verify directory
-    //            -i --input
-    //            input directory
-    //            -v --verify
-    //            verify directory`
-
     Date string `-dDATE
                 date for save`
 
@@ -27,8 +15,6 @@ type myArg struct {
                 help for begin: begin the service
                 -e --end
                 end the service`
-    Host string `-h --host
-                hostname`
 }
 
 

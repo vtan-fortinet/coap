@@ -4,7 +4,7 @@ import (
     //"os"
     "fmt"
     "time"
-    "github.com/pastebt/coap"
+    "coap"
 )
 
 

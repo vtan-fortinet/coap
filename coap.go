@@ -181,22 +181,15 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
         case strings.HasPrefix(line, "---"):    // group
             isGrp = true
             oa.Grp = make([]*oaItem, 0, 5)
-            v := val.Type().Elem()
-            // grp can use point of struct or string
-            if v.Kind() == reflect.Struct {
-                if v.NumField() != 2 {
-                    panic("Grp struct need two fields")
-                }
-                oa.IsBool = v.Field(1).Type.Kind() == reflect.Bool
-                //fmt.Printf("oa.IsBool = %v\n", oa.IsBool)
-            }
             ret := splitSpaceF(line, func(r []string) bool { return len(r) > 0 })
             oa.Vname = ret[0][3:]
+            if len(oa.Vname) == 0 { oa.IsBool = true }
             if len(ret) > 1 { oa.initDefault(val, ret[1]) }
         case strings.HasPrefix(line, "-"):      // short or long
             if isGrp {
                 // save data as string here, assigned later in setGrp
-                soa = &oaItem{val:reflect.New(reflect.TypeOf("")).Elem()}
+                soa = &oaItem{val:reflect.New(reflect.TypeOf("")).Elem(),
+                              IsBool: oa.IsBool}
                 oa.Grp = append(oa.Grp, soa)
             }
             dft := soa.initOpts(line)
@@ -220,12 +213,7 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
                 ss = append(ss, "-" + a.Long)
             }
             // group item copy from group
-            a.StrDft, a.Must, a.IsBool = oa.StrDft, oa.Must, oa.IsBool
-            if a.IsBool {
-                a.HasDft = true
-            } else {
-                a.HasDft = oa.HasDft
-            }
+            a.HasDft, a.StrDft, a.Must = oa.HasDft, oa.StrDft, oa.Must
         }
         oa.Long = strings.Join(ss, "|")
     } else if ! oa.Must {
@@ -405,12 +393,21 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 func (oa *oaItem)setGrp(goa *oaItem) (err string) {
     switch k := oa.val.Kind(); k {
     case reflect.String:
+        /*
         if len(goa.Short) > 0 {
             oa.val.SetString(goa.Short + " " + goa.val.String())
         } else {
             oa.val.SetString(goa.Long + " " + goa.val.String())
         }
+        */
+        s := goa.Short
+        if len(s) == 0 { s = goa.Long }
+        if !oa.IsBool {
+            s += " " + goa.val.String()
+        }
+        oa.val.SetString(s)
         return
+    /*
     case reflect.Ptr:
         v := oa.val.Type().Elem()
         if v.Kind() != reflect.Struct {
@@ -429,6 +426,7 @@ func (oa *oaItem)setGrp(goa *oaItem) (err string) {
         oa.val.Set(val)
         v1 := val.Elem().Field(1)
         _, err = setValue(&v1, goa.getVal().String())
+    */
     default:
         panic("Grp did not support type " + k.String())
     }
@@ -458,7 +456,8 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
         pa = (*opt)[len(oa.Long) + 3:]
     } else if cu = canUse(&oa.val, arg); cu {
         pa = *arg
-    } else if oa.HasDft && (oa.Must || oa.IsBool) {
+    //} else if oa.HasDft && (oa.Must || oa.IsBool) {
+    } else if oa.HasDft || oa.IsBool {
         pa = oa.StrDft
     } else {
         err = "option " + op + " need parameter"

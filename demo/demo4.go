@@ -1,22 +1,14 @@
 package main
 
 import (
-    //"os"
     "fmt"
-    //"time"
     "github.com/pastebt/coap"
 )
 
 
-type GRP struct {
-    Sel string
-    Val bool
-}
-
-
 type myArg struct {
-    Act *GRP    `---
-                 different action
+    Act string   `---
+                 !different action
                  -s --start
                  start
                  -e --end
