@@ -181,6 +181,15 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
         case strings.HasPrefix(line, "---"):    // group
             isGrp = true
             oa.Grp = make([]*oaItem, 0, 5)
+            v := val.Type().Elem()
+            // grp can use point of struct or string
+            if v.Kind() == reflect.Struct {
+                if v.NumField() != 2 {
+                    panic("Grp struct need two fields")
+                }
+                oa.IsBool = v.Field(1).Type.Kind() == reflect.Bool
+                //fmt.Printf("oa.IsBool = %v\n", oa.IsBool)
+            }
             ret := splitSpaceF(line, func(r []string) bool { return len(r) > 0 })
             oa.Vname = ret[0][3:]
             if len(ret) > 1 { oa.initDefault(val, ret[1]) }
@@ -211,7 +220,12 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
                 ss = append(ss, "-" + a.Long)
             }
             // group item copy from group
-            a.HasDft, a.StrDft, a.Must = oa.HasDft, oa.StrDft, oa.Must
+            a.StrDft, a.Must, a.IsBool = oa.StrDft, oa.Must, oa.IsBool
+            if a.IsBool {
+                a.HasDft = true
+            } else {
+                a.HasDft = oa.HasDft
+            }
         }
         oa.Long = strings.Join(ss, "|")
     } else if ! oa.Must {
@@ -438,7 +452,7 @@ func (oa *oaItem)parse(opt, arg *string) (got int, err string) {
     var op, pa string
     var cu bool
     op = *opt
-    //println("oa.HasDft =", oa.HasDft, oa.Must)
+    //println("oa.HasDft =", oa.HasDft, oa.Must, oa.IsBool)
     if eqp {
         op = (*opt)[:len(oa.Long) + 2]
         pa = (*opt)[len(oa.Long) + 3:]
@@ -560,8 +574,6 @@ func oasParse(oas []*oaItem, opt, arg *string) (got int, err string) {
                     got = g
                     oa.Got = true
                     err = oa.setGrp(goa)
-                    //if err != "" { return }
-                    //break
                     return
                 }
             }
