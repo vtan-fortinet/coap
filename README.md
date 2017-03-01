@@ -3,16 +3,11 @@ Command line Option and Argument Parser
 
 ```go
 
-type Grp struct {
-    Sel string  // first must be string
-    Val int     // type is whatever can be converted from string
-}
-
 type Arg struct {
     // Optional arguments
 
     // first line is short or long options,
-    // second line if not start with {, will be help 
+    // second line if not start with [, will be help 
     // boolean option, only short
     B1 bool   `-v
                increase output verbosity`
@@ -36,12 +31,12 @@ type Arg struct {
                 user type`
 
     // Set default when instance the struct.
-    // If the default is same as golang default, then can attach on first line
-    // if not exists default, means option and argument will stay together
+    // If the default is same as golang default, can attach on first line
+    // if default not exists, means option and argument will stay together
     S4 string  `-p --password ""|default_desc_in_help
                 user password`
 
-    // Config must exists by lead help with !
+    // Config must exists by leading help with !
     // So if not set default, then this means -s must exists, and must has arg
     // Start help with '!!' if help do need start with ! but not must exists
     // use '! !' if if help do need start with ! and must exists
@@ -49,26 +44,25 @@ type Arg struct {
                !start command`
 
     // group, can select one of them, but no more then one
-    // if entry os string, result will combine with option and value
-    // if entry is Grp, will fill first two fields
+    // entry must be string, result will combine with option and value
 
     // --- start a group, default select will set in instance
     // default arg can set in instance or here
+    // --- follow a name will ask argument
     G1 string  `---GRP
                 Help for this group
-                -b --begin
-                help for begin: begin the service
+                -u --upload
+                help for upload, upload a file
+                -d --download
+                help for download, download file
+    // you will get G1 as "u filename" or "d filename"
+    // --- flollow nothing, will need no argument
+    G2 string  `---
+                Help for this group
+                -b --beging
+                help for begin, 
                 -e --end
-                end the service`
-
-    // use Grp struct, must has sel and val,
-    // sel must be string,
-    // val can be anything convatable from string
-    G2 *Grp    `---FILENAME
-                !Compress/uncompress file
-                -c --compress
-                compress file 
-                -d --decompress
-                decompress file`
+                help for end
+    // you will get G2 "b" or "e"
 }
 ```

@@ -1,27 +1,27 @@
 package main
 
 import (
+    "fmt"
     "coap"
 )
 
 
 type myArg struct {
-    Date string `-dDATE
-                date for save`
-
-    G1 string   `---GRP
-                !Help for this group
-                -b --begin
-                help for begin: begin the service
-                -e --end
-                end the service`
+    Act string   `---
+                 !different action
+                 -s --start
+                 start
+                 -e --end
+                 end`
+    Vs []bool    `-v
+                 test bool`
 }
 
 
 func main() {
-    mo := &myArg{}
-    a  := coap.Parse(mo)
-    //println("sel=", mo.InDn.Sel, ", val=", mo.InDn.Val)
-    println("G1=", mo.G1)
-    println("A=", a)
+    m := myArg{}
+    args := coap.Parse(&m)
+    fmt.Printf("Act = %v\n", m.Act)
+    fmt.Printf("Vs = %v\n", m.Vs)
+    fmt.Printf("args = %v\n", args)
 }

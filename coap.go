@@ -169,10 +169,22 @@ func (oa *oaItem)initHelp(line string) {
 }
 
 
+func isBool(val reflect.Value) bool {
+    switch k := val.Kind(); k {
+    case reflect.Bool:
+        return true
+    case reflect.Slice:
+        return val.Type().Elem().Kind() == reflect.Bool
+    }
+    return false
+}
+
+
 func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
     oa.rsf = rsf
     oa.val = val
-    oa.IsBool = oa.val.Kind() == reflect.Bool
+    //oa.IsBool = oa.val.Kind() == reflect.Bool
+    oa.IsBool = isBool(val)
     isGrp := false
     soa := oa
     for _, l := range strings.Split(string(rsf.Tag), "\n") {
@@ -181,7 +193,8 @@ func (oa *oaItem)init(rsf reflect.StructField, val reflect.Value) {
         case strings.HasPrefix(line, "---"):    // group
             isGrp = true
             oa.Grp = make([]*oaItem, 0, 5)
-            ret := splitSpaceF(line, func(r []string) bool { return len(r) > 0 })
+            ret := splitSpaceF(line,
+                               func(r []string) bool { return len(r) > 0 })
             oa.Vname = ret[0][3:]
             if len(oa.Vname) == 0 { oa.IsBool = true }
             if len(ret) > 1 { oa.initDefault(val, ret[1]) }
@@ -297,16 +310,16 @@ func (oa *oaItem)helpLongGrp(w io.Writer, head, align int) {
 
 
 func (oa *oaItem)calSp() (sp int) {
-    if len(oa.Grp) > 0 {        // grp item
+    if len(oa.Grp) > 0 {                    // grp item
         for _, g := range oa.Grp {
-            s := g.calSp() + 2                  // extra leading "  "
+            s := g.calSp() + 2              // extra leading "  "
             if s > sp { sp = s }
         }
-    } else {                    // regular item
-        sp = 2                                  // leading "  "
-        sp = sp + 2 + 2                        // len("-S, ")
+    } else {                                // regular item
+        sp = 2                              // leading "  "
+        sp = sp + 2 + 2                     // len("-S, ")
         if len(oa.Long) > 0 {
-            sp = sp + len(oa.Long) + 2 + 2      // "--" and ending "  "
+            sp = sp + len(oa.Long) + 2 + 2  // "--" and ending "  "
         }
     }
     return
@@ -393,13 +406,6 @@ func setValue(val *reflect.Value, dat string) (got int, err string) {
 func (oa *oaItem)setGrp(goa *oaItem) (err string) {
     switch k := oa.val.Kind(); k {
     case reflect.String:
-        /*
-        if len(goa.Short) > 0 {
-            oa.val.SetString(goa.Short + " " + goa.val.String())
-        } else {
-            oa.val.SetString(goa.Long + " " + goa.val.String())
-        }
-        */
         s := goa.Short
         if len(s) == 0 { s = goa.Long }
         if !oa.IsBool {
@@ -407,28 +413,8 @@ func (oa *oaItem)setGrp(goa *oaItem) (err string) {
         }
         oa.val.SetString(s)
         return
-    /*
-    case reflect.Ptr:
-        v := oa.val.Type().Elem()
-        if v.Kind() != reflect.Struct {
-            panic("Grp should be a ptr to struct " + v.Kind().String())
-        }
-        if v.NumField() != 2{
-            panic("Grp struct need two fields")
-        }
-        sel := v.Field(0)
-        if sel.Type.Kind() != reflect.String {
-            panic("Grp struct first field should be string: " +
-                   sel.Type.Kind().String())
-        }
-        val := reflect.New(v)
-        val.Elem().Field(0).SetString(goa.Short)
-        oa.val.Set(val)
-        v1 := val.Elem().Field(1)
-        _, err = setValue(&v1, goa.getVal().String())
-    */
     default:
-        panic("Grp did not support type " + k.String())
+        panic("Grp only support string, not " + k.String())
     }
     return
 }
@@ -718,9 +704,6 @@ func HelpShort(i interface{}, w io.Writer) {
     for _, oa := range oi.oas {
         oa.helpShort(w)
         fmt.Fprint(w, " ")
-        //if i := len(oa.Short) + len(oa.Long) + 8; i > a {
-        //    a = i
-        //}
     }
 }
 
