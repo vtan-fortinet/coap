@@ -54,7 +54,7 @@ type Arg struct {
                 -u --upload
                 help for upload, upload a file
                 -d --download
-                help for download, download file
+                help for download, download file`
     // you will get G1 as "u filename" or "d filename"
     // --- flollow nothing, will need no argument
     G2 string  `---
@@ -62,7 +62,7 @@ type Arg struct {
                 -b --beging
                 help for begin, 
                 -e --end
-                help for end
+                help for end`
     // you will get G2 "b" or "e"
 }
 ```
