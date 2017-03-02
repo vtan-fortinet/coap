@@ -59,7 +59,7 @@ type Arg struct {
     // --- flollow nothing, will need no argument
     G2 string  `---
                 Help for this group
-                -b --beging
+                -b --begin
                 help for begin, 
                 -e --end
                 help for end`
