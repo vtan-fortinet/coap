@@ -602,6 +602,34 @@ func ParseDesc(i interface{}, desc string) []string {
 func Parse(i interface{}) []string { return ParseDesc(i, "") }
 
 
+
+type ID struct {
+    I interface{}
+    D string
+}
+/* hand multi programs */
+func ParseDescs(ids []ID) (int, []string) {
+    ss, sl := 0, 0
+    for idx, id := range ids {
+        msg, ps := ParseArg(id.I, os.Args[1:])
+        if msg == "" { return idx, ps }
+        oi := initial(id.I)
+        if _, ok := oi.oam["-h"]; ok { ss += 1 }
+        if _, ok := oi.oam["--help"]; ok { sl += 1 }
+    }
+
+    if len(os.Args) <= 1 ||
+       (ss == 0 && os.Args[1] == "-h") ||
+       (sl == 0 && os.Args[1] == "--help") {
+        for _, id := range ids {
+            HelpMsg(id.I, id.D, os.Stdout)
+            //fmt.Fprint(os.Stdout, "\n")
+        }
+    }
+    return -1, nil
+}
+
+
 func get_next(idx int, args []string) (o, a *string) {
     o = &(args[idx])
     if idx < (len(args) - 1) {

@@ -1,6 +1,7 @@
 package coap
 
 import (
+    "os"
     "fmt"
     "testing"
     "reflect"
@@ -846,6 +847,44 @@ func TestParseGrp4(tst *testing.T) {
     }
 }
 */
+
+
+type M1 struct {
+    Fn string   `-f --file
+                !input file`
+}
+type M2 struct {
+    Url string  `-u --url
+                !input url`
+}
+
+func TestParseDescs1(tst *testing.T) {
+    os.Args = []string{"cmd", "-f", "abcd.txt"}
+    m1, m2 := new(M1), new(M2)
+    i, _ := ParseDescs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
+    if i != 0 { tst.Errorf("shoudl return 0: %v", i) }
+    if m1.Fn != "abcd.txt" { tst.Errorf("Fn != abcd.txt: %v", *m1) }
+
+    os.Args = []string{"cmd", "-u", "abc.com"}
+    i, _ = ParseDescs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
+    if i != 1 { tst.Errorf("shoudl return 1: %v", i) }
+    if m2.Url != "abc.com" { tst.Errorf("Url != abc.com: %v", *m2) }
+}
+
+func ExampleParseDescs() {
+    m1, m2 := new(M1), new(M2)
+    ParseDescs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
+    // Output:
+    //this is m1
+    //Usage: coap.test -f FILE 
+    //  -f, --file  input file
+    //
+    //this is m2
+    //Usage: coap.test -u URL
+
+    //  -u, --url  input url
+
+}
 
 // go test -bench=. coap
 func BenchmarkAdd(bm *testing.B) {
