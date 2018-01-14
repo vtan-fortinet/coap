@@ -608,7 +608,7 @@ type ID struct {
     D string
 }
 /* hand multi programs */
-func ParseDescs(ids []ID) (int, []string) {
+func ParseIDs(ids []ID) (int, []string) {
     ss, sl := 0, 0
     for idx, id := range ids {
         msg, ps := ParseArg(id.I, os.Args[1:])
@@ -729,9 +729,9 @@ func HelpMsg(i interface{}, msg string, w io.Writer) {
 
 func HelpShort(i interface{}, w io.Writer) {
     oi := initial(i)
-    for _, oa := range oi.oas {
+    for i, oa := range oi.oas {
+        if i > 0 { fmt.Fprint(w, " ") }
         oa.helpShort(w)
-        fmt.Fprint(w, " ")
     }
 }
 
