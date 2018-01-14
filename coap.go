@@ -34,10 +34,12 @@ type oaItem struct {    // option, argument item
 
 
 type oaInfo struct {
-    oam map[string]*oaItem
-    oas []*oaItem
-    vfm map[string]func(interface{})string   // validate function map
-    sp  int     // length of help leading space
+    oam  map[string]*oaItem
+    oas  []*oaItem
+    vfm  map[string]func(interface{})string   // validate function map
+    sp   int     // length of help leading space
+    astr string // help message for arguments
+    acnt int    // asked arguments number
 }
 
 
@@ -713,6 +715,12 @@ func ParseArg(i interface{}, args []string) (msg string, ps []string) {
             if msg != "" { return }
         }
     }
+    // check argumens
+    if oi.astr == "" { return }
+    if (oi.acnt > 0 && oi.acnt != len(ps)) ||
+       (oi.acnt < 0 && len(ps) < -oi.acnt) {
+        msg = "miss " + oi.astr
+    }
     return
 }
 
@@ -742,6 +750,9 @@ func HelpShort(i interface{}, w io.Writer) {
         if i > 0 { fmt.Fprint(w, " ") }
         oa.helpShort(w)
     }
+    if oi.astr != "" {
+        fmt.Fprint(w, " " + oi.astr)
+    }
 }
 
 
@@ -761,4 +772,9 @@ func HelpLong(i interface{}, w io.Writer) {
 func RegValFunc(i interface{}, opt string, f func(interface{})string) {
     oi := initial(i)
     oi.vfm[opt] = f
+}
+
+func RegArg(i interface{}, cnt int, str string) {
+    oi := initial(i)
+    oi.astr, oi.acnt = str, cnt
 }

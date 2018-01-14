@@ -773,6 +773,43 @@ func TestParseArg5(tst *testing.T) {
 }
 
 
+func TestParseArg6(tst *testing.T) {
+    type aa struct {
+        i int
+    }
+
+    a1 := aa{}
+    RegArg(&a1, 1, "filename")
+    msg, _ := ParseArg(&a1, []string{})
+    if msg != "miss filename" {
+        tst.Error("error msg wrong", a1, msg)
+    }
+    msg, args := ParseArg(&a1, []string{"tst.txt"})
+    if msg != "" {
+        tst.Error("should not get err msg", a1, msg)
+    }
+    if len(args) != 1 || args[0] != "tst.txt" {
+        tst.Error("failed get args", a1, args)
+    }
+}
+
+
+func ExampleRegArg() {
+    type aa struct {
+        I int   `-i --input
+                input`
+    }
+
+    a1 := aa{}
+    RegArg(&a1, 1, "filename")
+    defer func(){ recover() }()
+    Parse(&a1)
+    // Output:
+    // Usage: coap.test [-i INPUT] filename
+    //   -i, --input  input
+}
+
+
 func TestParseGrp2(tst *testing.T) {
     type g2 struct {
         S string   `---FILENAME
