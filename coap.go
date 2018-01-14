@@ -48,6 +48,12 @@ func init() {
     infos = make(map[uintptr]*oaInfo)
 }
 
+var TESTING bool
+
+func exit(i int) {
+    if TESTING { panic(i) }
+    os.Exit(i)
+}
 
 func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
     ret = make([]string, 0, 2)
@@ -594,7 +600,8 @@ func ParseDesc(i interface{}, desc string) []string {
         } else {
             fmt.Fprint(os.Stderr, msg + "\n")
         }
-        os.Exit(1)
+        //os.Exit(1)
+        exit(1)
     }
     return ps
 }
@@ -625,6 +632,8 @@ func ParseIDs(ids []ID) (int, []string) {
             HelpMsg(id.I, id.D, os.Stdout)
             //fmt.Fprint(os.Stdout, "\n")
         }
+        //os.Exit(1)
+        exit(1)
     }
     return -1, nil
 }

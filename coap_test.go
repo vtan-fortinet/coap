@@ -9,6 +9,12 @@ import (
 )
 
 
+func TestMain(m *testing.M) {
+    TESTING = true
+    os.Exit(m.Run())
+}
+
+
 func reset() { infos = make(map[uintptr]*oaInfo) }
 
 
@@ -230,6 +236,28 @@ func TestInitGrp4(tst *testing.T) {
         tst.Error(msg)
         tst.Error(ps)
     }
+}
+
+
+func ExampleGrp1() {
+    defer func() { recover() } ()
+    os.Args = []string{"coap.test"}
+    type g41 struct {
+        G4 string `---GRP4
+                   !help for g4
+                   -a 
+                   help for g3a
+                   -b
+                   help for g3b`
+    }
+    g := &g41{}
+    ParseDesc(g, "")
+    // Output:
+    // Usage: coap.test -a|-b GRP4
+    //   help for g4
+    //     -a  help for g3a
+    //     -b  help for g3b
+
 }
 
 
@@ -871,7 +899,9 @@ func TestParseIDs1(tst *testing.T) {
     if m2.Url != "abc.com" { tst.Errorf("Url != abc.com: %v", *m2) }
 }
 
+
 func ExampleParseIDs() {
+    defer func() { recover() } ()
     os.Args = []string{"coap.test"}
     m1, m2 := new(M1), new(M2)
     ParseIDs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
