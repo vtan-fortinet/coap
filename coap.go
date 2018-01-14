@@ -50,10 +50,10 @@ func init() {
     infos = make(map[uintptr]*oaInfo)
 }
 
-var TESTING bool
+var isTESTING bool
 
 func exit(i int) {
-    if TESTING { panic(i) }
+    if isTESTING { panic(i) }
     os.Exit(i)
 }
 

@@ -10,7 +10,7 @@ import (
 
 
 func TestMain(m *testing.M) {
-    TESTING = true
+    isTESTING = true
     os.Exit(m.Run())
 }
 
