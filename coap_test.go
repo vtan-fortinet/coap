@@ -953,6 +953,39 @@ func ExampleParseIDs() {
 
 }
 
+
+type M struct {
+    Fn  string  `-f --file
+                input filename`
+    Cnt int     `-c --cnt
+                count`
+}
+func ExampleParseDesc1() {
+   defer func() { recover() } ()
+    m := M{}
+    os.Args = []string{"coap.test", "-h"}
+    ParseDesc(&m, "Example for ParseDesc short")
+    // Output:
+    // Example for ParseDesc short
+    // Usage: coap.test [-f FILE] [-c CNT]
+    //   -f, --file  input filename
+    //   -c, --cnt   count
+}
+
+
+func ExampleParseDesc2() {
+   defer func() { recover() } ()
+    m := M{}
+    os.Args = []string{"coap.test", "--help"}
+    ParseDesc(&m, "Example for ParseDesc long")
+    // Output:
+    // Example for ParseDesc long
+    // Usage: coap.test [-f FILE] [-c CNT]
+    //   -f, --file  input filename
+    //   -c, --cnt   count
+}
+
+
 func ExampleHello() {
     fmt.Println("hello\n me")
     /* Output:

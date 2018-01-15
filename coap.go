@@ -77,11 +77,11 @@ func splitSpaceF(line string, doneF func ([]string) bool) (ret []string) {
     return
 }
 
-
+/*
 func (oa *oaItem)getVal() *reflect.Value {
     return &oa.val
 }
-
+*/
 
 func (oa *oaItem)splitOpt(line string) (ret []string) {
     ret = splitSpaceF(line, func(r []string) bool {
