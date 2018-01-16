@@ -603,6 +603,7 @@ func ParseDesc(i interface{}, desc string) []string {
             fmt.Fprint(os.Stderr, msg + "\n")
         }
         //os.Exit(1)
+        if isTESTING { defer func(){ recover() }() }
         exit(1)
     }
     return ps
@@ -635,6 +636,7 @@ func ParseIDs(ids []ID) (int, []string) {
             //fmt.Fprint(os.Stdout, "\n")
         }
         //os.Exit(1)
+        if isTESTING { defer func(){ recover() }() }
         exit(1)
     }
     return -1, nil

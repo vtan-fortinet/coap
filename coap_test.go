@@ -240,7 +240,7 @@ func TestInitGrp4(tst *testing.T) {
 
 
 func ExampleGrp1() {
-    defer func() { recover() } ()
+    //defer func() { recover() } ()
     os.Args = []string{"coap.test"}
     type g41 struct {
         G4 string `---GRP4
@@ -802,7 +802,7 @@ func ExampleRegArg() {
 
     a1 := aa{}
     RegArg(&a1, 1, "filename")
-    defer func(){ recover() }()
+    //defer func(){ recover() }()
     Parse(&a1)
     // Output:
     // Usage: coap.test [-i INPUT] filename
@@ -938,7 +938,7 @@ func TestParseIDs1(tst *testing.T) {
 
 
 func ExampleParseIDs() {
-    defer func() { recover() } ()
+    //defer func() { recover() } ()
     os.Args = []string{"coap.test"}
     m1, m2 := new(M1), new(M2)
     ParseIDs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
@@ -961,7 +961,7 @@ type M struct {
                 count`
 }
 func ExampleParseDesc1() {
-    defer func() { recover() } ()
+    //defer func() { recover() } ()
     m := M{}
     os.Args = []string{"coap.test", "-h"}
     ParseDesc(&m, "Example for ParseDesc short")
@@ -974,7 +974,7 @@ func ExampleParseDesc1() {
 
 
 func ExampleParseDesc2() {
-    defer func() { recover() } ()
+    //defer func() { recover() } ()
     m := M{}
     os.Args = []string{"coap.test", "--help"}
     ParseDesc(&m, "Example for ParseDesc long")
@@ -987,7 +987,7 @@ func ExampleParseDesc2() {
 
 
 func ExampleParse1() {
-    defer func() { recover() } ()
+    //defer func() { recover() } ()
     m := struct {
         Fn string `-f --file
                    filename,
