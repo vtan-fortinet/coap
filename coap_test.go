@@ -961,7 +961,7 @@ type M struct {
                 count`
 }
 func ExampleParseDesc1() {
-   defer func() { recover() } ()
+    defer func() { recover() } ()
     m := M{}
     os.Args = []string{"coap.test", "-h"}
     ParseDesc(&m, "Example for ParseDesc short")
@@ -974,7 +974,7 @@ func ExampleParseDesc1() {
 
 
 func ExampleParseDesc2() {
-   defer func() { recover() } ()
+    defer func() { recover() } ()
     m := M{}
     os.Args = []string{"coap.test", "--help"}
     ParseDesc(&m, "Example for ParseDesc long")
@@ -983,6 +983,22 @@ func ExampleParseDesc2() {
     // Usage: coap.test [-f FILE] [-c CNT]
     //   -f, --file  input filename
     //   -c, --cnt   count
+}
+
+
+func ExampleParse1() {
+    defer func() { recover() } ()
+    m := struct {
+        Fn string `-f --file
+                   filename,
+                   default is abc.com`
+    }{}
+    os.Args = []string{"coap.test", "-h"}
+    Parse(&m)
+    // Output:
+    // Usage: coap.test [-f FILE]
+    //   -f, --file  filename,
+    //               default is abc.com
 }
 
 
