@@ -773,35 +773,31 @@ func TestParseArg5(tst *testing.T) {
 
 
 func TestParseArg6(tst *testing.T) {
-    type aa struct {
-        i int
-    }
+    a := new(struct { i int })
 
-    a1 := aa{}
-    RegArg(&a1, 1, "filename")
-    msg, _ := ParseArg(&a1, []string{})
+    RegArg(a, 1, "filename")
+    msg, _ := ParseArg(a, []string{})
     if msg != "miss filename" {
-        tst.Error("error msg wrong", a1, msg)
+        tst.Error("error msg wrong", *a, msg)
     }
-    msg, args := ParseArg(&a1, []string{"tst.txt"})
+    msg, args := ParseArg(a, []string{"tst.txt"})
     if msg != "" {
-        tst.Error("should not get err msg", a1, msg)
+        tst.Error("should not get err msg", *a, msg)
     }
     if len(args) != 1 || args[0] != "tst.txt" {
-        tst.Error("failed get args", a1, args)
+        tst.Error("failed get args", *a, args)
     }
 }
 
 
 func ExampleRegArg() {
-    type aa struct {
+    a := new(struct {
         I int   `-i --input
                 input`
-    }
+    })
 
-    a1 := aa{}
-    RegArg(&a1, 1, "filename")
-    Parse(&a1)
+    RegArg(a, 1, "filename")
+    Parse(a)
     // Output:
     // Usage: coap.test [-i INPUT] filename
     //   -i, --input  input
@@ -951,14 +947,13 @@ func ExampleParseIDs() {
 }
 
 
-type M struct {
-    Fn  string  `-f --file
-                input filename`
-    Cnt int     `-c --cnt
-                count`
-}
 func ExampleParseDesc1() {
-    m := M{}
+    m := struct {
+        Fn  string  `-f --file
+                    input filename`
+        Cnt int     `-c --cnt
+                    count`
+    }{}
     os.Args = []string{"coap.test", "-h"}
     ParseDesc(&m, "Example for ParseDesc short")
     // Output:
@@ -970,7 +965,12 @@ func ExampleParseDesc1() {
 
 
 func ExampleParseDesc2() {
-    m := M{}
+    m := struct {
+        Fn  string  `-f --file
+                    input filename`
+        Cnt int     `-c --cnt
+                    count`
+    }{}
     os.Args = []string{"coap.test", "--help"}
     ParseDesc(&m, "Example for ParseDesc long")
     // Output:
