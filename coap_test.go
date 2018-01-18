@@ -810,7 +810,7 @@ func ExampleRegArg_2() {
                 input`
     })
 
-    RegArg(a, -1, "filename")
+    RegArg(a, -1, "filename ...")
     Parse(a)
     // Output:
     // Usage: coap.test [-i INPUT] filename ...

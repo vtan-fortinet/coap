@@ -756,7 +756,8 @@ func HelpShort(i interface{}, w io.Writer) {
     }
     if oi.astr != "" {
         fmt.Fprint(w, " " + oi.astr)
-        if oi.acnt < 0 { fmt.Fprint(w, " ...") }
+        // astr should show this by itself
+        //if oi.acnt < 0 { fmt.Fprint(w, " ...") }
     }
 }
 
