@@ -790,7 +790,7 @@ func TestParseArg6(tst *testing.T) {
 }
 
 
-func ExampleRegArg() {
+func ExampleRegArg_1() {
     a := new(struct {
         I int   `-i --input
                 input`
@@ -800,6 +800,20 @@ func ExampleRegArg() {
     Parse(a)
     // Output:
     // Usage: coap.test [-i INPUT] filename
+    //   -i, --input  input
+}
+
+
+func ExampleRegArg_2() {
+    a := new(struct {
+        I int   `-i --input
+                input`
+    })
+
+    RegArg(a, -1, "filename")
+    Parse(a)
+    // Output:
+    // Usage: coap.test [-i INPUT] filename ...
     //   -i, --input  input
 }
 
@@ -947,7 +961,7 @@ func ExampleParseIDs() {
 }
 
 
-func ExampleParseDesc1() {
+func ExampleParseDesc_1() {
     m := struct {
         Fn  string  `-f --file
                     input filename`
@@ -964,7 +978,7 @@ func ExampleParseDesc1() {
 }
 
 
-func ExampleParseDesc2() {
+func ExampleParseDesc_2() {
     m := struct {
         Fn  string  `-f --file
                     input filename`
@@ -981,7 +995,7 @@ func ExampleParseDesc2() {
 }
 
 
-func ExampleParse1() {
+func ExampleParse_1() {
     m := struct {
         Fn string `-f --file
                    filename,
