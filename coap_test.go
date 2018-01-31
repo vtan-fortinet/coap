@@ -932,8 +932,8 @@ type M2 struct {
 }
 
 func TestParseIDs1(tst *testing.T) {
-    os.Args = []string{"cmd", "-f", "abcd.txt"}
     m1, m2 := new(M1), new(M2)
+    os.Args = []string{"cmd", "-f", "abcd.txt"}
     i, _ := ParseIDs([]ID{{m1, "this is m1"}, {m2, "this is m2"}})
     if i != 0 { tst.Errorf("shoudl return 0: %v", i) }
     if m1.Fn != "abcd.txt" { tst.Errorf("Fn != abcd.txt: %v", *m1) }

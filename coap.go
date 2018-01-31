@@ -621,9 +621,11 @@ type ID struct {
 /* hand multi programs */
 func ParseIDs(ids []ID) (int, []string) {
     ss, sl := 0, 0
+    msgs := make([]string, len(ids))
     for idx, id := range ids {
         msg, ps := ParseArg(id.I, os.Args[1:])
         if msg == "" { return idx, ps }
+        msgs[idx] = msg
         oi := initial(id.I)
         if _, ok := oi.oam["-h"]; ok { ss += 1 }
         if _, ok := oi.oam["--help"]; ok { sl += 1 }
@@ -641,6 +643,12 @@ func ParseIDs(ids []ID) (int, []string) {
         defer func(){ recover() }()
         exit(1)
     }
+    for idx, id := range ids {
+        HelpMsg(id.I, id.D + ": " + msgs[idx], os.Stdout)
+        //fmt.Fprint(os.Stdout, "\n")
+    }
+    defer func(){ recover() }()
+    exit(1)
     return -1, nil
 }
 
