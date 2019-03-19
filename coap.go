@@ -652,6 +652,21 @@ func ParseIDs(ids []ID) (int, []string) {
     return -1, nil
 }
 
+func ParseM(its ...interface{}) (int, []string) {
+    ids := make([]ID, 0, 2)
+    ds := ""
+    for _, i := range its {
+        switch v := reflect.ValueOf(i); v.Kind() {
+        case reflect.String:
+            ds, _ = i.(string)
+        default:
+            ids = append(ids, ID{i, ds})
+            ds = ""
+        }
+    }
+    return ParseIDs(ids)
+}
+
 
 func get_next(idx int, args []string) (o, a *string) {
     o = &(args[idx])
